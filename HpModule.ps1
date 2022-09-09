@@ -1,6 +1,18 @@
-$progressPreference = "SilentlyContinue"
+<#
+    .SYNOPSIS
+        Client Management Script Library
+
+    .DESCRIPTION
+        Client Management Script Library
+
+    .NOTES
+        
+    .LINK
+        https://github.com/UsefulScripts01/HpModule
+#>
 
 function Get-HpModule {
+    $progressPreference = "SilentlyContinue"
     Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.7.exe" -OutFile "C:\Windows\Temp\HpModule.exe"
     Start-Process -FilePath "C:\Windows\Temp\HpModule.exe" -Wait -ArgumentList "/silent /norestart"
     Get-Command -Module "*HP*"
