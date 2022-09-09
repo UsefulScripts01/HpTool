@@ -23,4 +23,6 @@ function Get-HpModule {
 }
 Get-HpModule
 
+# Set-HPBIOSSettingValue -Name "LAN / WLAN Auto Switching" -Value "Enable"
+
 Exit
