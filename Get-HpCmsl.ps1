@@ -1,4 +1,5 @@
-<#
+function Get-HpCmsl {
+    <#
     .SYNOPSIS
         Client Management Script Library
 
@@ -9,10 +10,8 @@
         
     .LINK
         https://github.com/UsefulScripts01/HpModule
-#>
-
-function Get-HpCmsl {
-    # script options
+    #>
+    
     $progressPreference = "SilentlyContinue"
 
     $Bios = (Get-ComputerInfo).BiosManufacturer

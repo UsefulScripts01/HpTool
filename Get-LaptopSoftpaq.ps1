@@ -1,4 +1,5 @@
-<#
+function Get-LaptopSoftpaq {
+    <#
     .SYNOPSIS
         Get HP Softpaq.
 
@@ -9,9 +10,8 @@
         
     .LINK
         https://github.com/UsefulScripts01/HpModule
-#>
-
-function Get-LaptopSoftpaq {
+    #>
+    
     $progressPreference = "SilentlyContinue"
 
     $Bios = (Get-ComputerInfo).BiosManufacturer
