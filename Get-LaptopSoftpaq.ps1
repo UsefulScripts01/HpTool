@@ -15,7 +15,7 @@ function Get-LaptopSoftpaq {
     $progressPreference = "SilentlyContinue"
 
     $Bios = (Get-ComputerInfo).BiosManufacturer
-    if ($Bios -eq "HP" -and $CmslPath -notmatch "True") {
+    if ($Bios -eq "HP") {
 
         $CmslPath = Test-Path -Path "C:\Program Files\WindowsPowerShell\HP.CMSL.UninstallerData"
         if ($CmslPath -notmatch "True") {
