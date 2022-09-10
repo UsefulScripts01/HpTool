@@ -20,21 +20,21 @@ function Get-LaptopSoftpaq {
         Start-Process -FilePath "C:\Windows\Temp\HpModule.exe" -Wait -ArgumentList "/verysilent /norestart"
         Remove-Item -Path "C:\Windows\Temp\HpModule.exe" -Force
         #Start-Process -FilePath "https://developers.hp.com/hp-client-management/doc/client-management-script-library"
-    }
-
-    Start-Job -Name "Get-LaptopSoftpaq" -ScriptBlock {
-        $TestPath = Test-Path -Path "C:\SOFTPAQ"
-        if ($TestPath -match "False") {
-            New-Item -Name "SOFTPAQ" -ItemType Directory -Path "C:\" -Force
+    
+        Start-Job -Name "Get-LaptopSoftpaq" -ScriptBlock {
+            $TestPath = Test-Path -Path "C:\SOFTPAQ"
+            if ($TestPath -match "False") {
+                New-Item -Name "SOFTPAQ" -ItemType Directory -Path "C:\" -Force
+            }
+            $OsVer = (Get-ComputerInfo).OSDisplayVersion
+            $CsModel = (Get-ComputerInfo).CsModel
+            New-Item -Name $CsModel -ItemType Directory -Path "C:\SOFTPAQ\" -Force
+            $Path = "C:\SOFTPAQ\$CsModel\"
+            Invoke-Item -Path $Path
+            New-HPDriverPack -OSVer $OsVer -Path $Path -RemoveOlder -Overwrite    
         }
-        $OsVer = (Get-ComputerInfo).OSDisplayVersion
-        $CsModel = (Get-ComputerInfo).CsModel
-        New-Item -Name $CsModel -ItemType Directory -Path "C:\SOFTPAQ\" -Force
-        $Path = "C:\SOFTPAQ\$CsModel\"
-        Invoke-Item -Path $Path
-        New-HPDriverPack -OSVer $OsVer -Path $Path -RemoveOlder -Overwrite    
+        Get-Job | Wait-Job -Timeout 300
     }
-    Get-Job | Wait-Job -Timeout 300
 }
 Get-LaptopSoftpaq
 
