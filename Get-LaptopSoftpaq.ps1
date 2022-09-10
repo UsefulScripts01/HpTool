@@ -26,6 +26,7 @@ function Get-LaptopSoftpaq {
         $CsModel = (Get-ComputerInfo).CsModel
         New-Item -Name $CsModel -ItemType Directory -Path "C:\SOFTPAQ\" -Force
         $Path = "C:\SOFTPAQ\$CsModel\"
+        Invoke-Item -Path $Path
         New-HPDriverPack -OSVer $OsVer -Path $Path -RemoveOlder -Overwrite    
     }
     Get-Job | Wait-Job -Timeout 300

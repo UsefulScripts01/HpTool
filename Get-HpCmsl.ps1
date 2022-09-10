@@ -11,10 +11,10 @@
         https://github.com/UsefulScripts01/HpModule
 #>
 
-# script options
-$progressPreference = "SilentlyContinue"
-
 function Get-HpCmsl {
+    # script options
+    $progressPreference = "SilentlyContinue"
+
     $Bios = (Get-ComputerInfo).BiosManufacturer
     if ($Bios -eq "HP") {
         Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.7.exe" -OutFile "C:\Windows\Temp\HpModule.exe"
