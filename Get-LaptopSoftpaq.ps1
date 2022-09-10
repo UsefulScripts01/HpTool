@@ -1,9 +1,9 @@
 <#
     .SYNOPSIS
-        Client Management Script Library
+        Get HP Softpaq.
 
     .DESCRIPTION
-        This script downloads and installs the "HP Client Management Script Library".
+        This script downloads all HP Softpaq that match your machine.
 
     .NOTES
         
@@ -11,11 +11,16 @@
         https://github.com/UsefulScripts01/HpModule
 #>
 
-# script options
-$progressPreference = "SilentlyContinue"
-
 function Get-LaptopSoftpaq {
     $progressPreference = "SilentlyContinue"
+
+    $Bios = (Get-ComputerInfo).BiosManufacturer
+    if ($Bios -eq "HP") {
+        Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.7.exe" -OutFile "C:\Windows\Temp\HpModule.exe"
+        Start-Process -FilePath "C:\Windows\Temp\HpModule.exe" -Wait -ArgumentList "/verysilent /norestart"
+        Remove-Item -Path "C:\Windows\Temp\HpModule.exe" -Force
+        #Start-Process -FilePath "https://developers.hp.com/hp-client-management/doc/client-management-script-library"
+    }
 
     Start-Job -Name "Get-LaptopSoftpaq" -ScriptBlock {
         $TestPath = Test-Path -Path "C:\SOFTPAQ"
