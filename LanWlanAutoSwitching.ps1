@@ -1,5 +1,4 @@
-function Enable-AutoSwitching {
-    <#
+<#
     .SYNOPSIS
         Enable LAN / WLAN Auto Switching
 
