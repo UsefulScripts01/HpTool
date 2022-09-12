@@ -26,6 +26,4 @@
         Set-HPBIOSSettingValue -Name "LAN / WLAN Auto Switching" -Value "Enable"   
     }
 
-    Enable-AutoSwitching
-
     Exit
