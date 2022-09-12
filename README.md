@@ -32,8 +32,6 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/Set-BiosDefaults.ps1'))
 ```
 
-https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/Set-BiosDefaults.ps1
-
 ### More Information
 
 For more information, please visit [HP Client Management Script Library Website](https://developers.hp.com/hp-client-management/doc/client-management-script-library).
