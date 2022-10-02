@@ -11,8 +11,8 @@ function Get-HpCmsl {
     .LINK
         https://github.com/UsefulScripts01/HpModule
     #>
-    
     $progressPreference = "SilentlyContinue"
+
     $Bios = (Get-ComputerInfo).BiosManufacturer
     if ($Bios -eq "HP") {
 
@@ -23,7 +23,8 @@ function Get-HpCmsl {
             Remove-Item -Path "C:\Windows\Temp\HpModule.exe" -Force
             Start-Process -FilePath "https://developers.hp.com/hp-client-management/doc/client-management-script-library"
         }
+        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/HpModule.psm1" -OutFile "~\Documents\WindowsPowerShell\HpModule.psm1"
+        Import-Module -Name "~\Documents\WindowsPowerShell\HpModule.psm1" -Global -Force
     }
 }
 Get-HpCmsl
-Import-Module -Name 
