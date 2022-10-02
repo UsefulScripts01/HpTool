@@ -8,10 +8,10 @@ This script install HP Client Management Script Library (CMSL)
 
 Copy the code from the area below and paste it into PowerShell Admin (or Windows Terminal).
 
-### Import HpModule.psm1
+### Install HP CMSL and import HpModule.psm1
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/Get-HpCmsl.ps1'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/InstallHpModule.ps1'))
 ```
 
 ### More Information
