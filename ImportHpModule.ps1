@@ -13,7 +13,6 @@ function Get-HpCmsl {
     #>
     
     $progressPreference = "SilentlyContinue"
-
     $Bios = (Get-ComputerInfo).BiosManufacturer
     if ($Bios -eq "HP") {
 
@@ -26,7 +25,5 @@ function Get-HpCmsl {
         }
     }
 }
-
 Get-HpCmsl
-
-Exit
+Import-Module -Name 

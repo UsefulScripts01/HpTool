@@ -8,28 +8,10 @@ This script install HP Client Management Script Library (CMSL)
 
 Copy the code from the area below and paste it into PowerShell Admin (or Windows Terminal).
 
-### Get-HpCmsl
+### Import HpModule.psm1
 
 ```powershell
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/Get-HpCmsl.ps1'))
-```
-
-### Get-LaptopSoftpaq (for current machine)
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/Get-LaptopSoftpaq.ps1'))
-```
-
-### Enable LAN / WLAN Auto Switching
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/Enable-AutoSwitching.ps1'))
-```
-
-### Reset BIOS settings to defaults
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpModule/main/Set-BiosDefaults.ps1'))
 ```
 
 ### More Information
