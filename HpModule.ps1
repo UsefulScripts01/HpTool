@@ -10,6 +10,7 @@
 #>
 
 function Get-HpModule {
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
     $HpModule = (Get-Module -All).Name
     if ($HpModule -notcontains "HPCMSL") {
         Install-PackageProvider -Name NuGet -Force
@@ -17,10 +18,10 @@ function Get-HpModule {
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
         
         Start-Process -FilePath "powershell" -Wait -WindowStyle Hidden {
-            Install-Module -Name HPCMSL -Force -AcceptLicense
+            Install-Module -Name "HPCMSL" -AcceptLicense -Force
         }
         
-        Get-Module -All -Name "HP*" | Import-Module -Global
+        Import-Module -Name "HPCMSL" -Scope Global
         Get-Module -All -Name "HP*" | Format-Table
         
         Write-Host "`n"
