@@ -27,5 +27,5 @@ function Get-HpCmsl {
         Import-Module -Name "~\Documents\WindowsPowerShell\HpModule.psm1" -Global -Force
     }
 }
-Get-HpCms
+Get-HpCmsl
 Get-Command -Module HpModule
