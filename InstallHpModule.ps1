@@ -17,7 +17,7 @@ function Get-HpCmsl {
     if ($Bios -eq "HP") {
 
         $CmslPath = Test-Path -Path "C:\Program Files\WindowsPowerShell\HP.CMSL.UninstallerData"
-        if ($CmslPath -notmatch "True") {
+        if ($CmslPath -eq "False") {
             Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.7.exe" -OutFile "C:\Windows\Temp\HpModule.exe"
             Start-Process -FilePath "C:\Windows\Temp\HpModule.exe" -Wait -ArgumentList "/verysilent /norestart"
             Remove-Item -Path "C:\Windows\Temp\HpModule.exe" -Force
@@ -27,4 +27,5 @@ function Get-HpCmsl {
         Import-Module -Name "~\Documents\WindowsPowerShell\HpModule.psm1" -Global -Force
     }
 }
-Get-HpCmsl
+Get-HpCms
+Get-Command -Module HpModule

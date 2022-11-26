@@ -92,5 +92,4 @@ function Set-BiosDefaults {
             #Start-Process -FilePath "https://developers.hp.com/hp-client-management/doc/client-management-script-library"
         }
     }
-    Set-HPBIOSSettingDefaults
 }
