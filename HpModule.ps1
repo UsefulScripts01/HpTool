@@ -45,7 +45,6 @@ $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
 if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
     $Exit = "N"
     while ($Exit -ne "Y") {
-    
         Write-Host "Chose Option:" -ForegroundColor White -BackgroundColor DarkGreen
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
