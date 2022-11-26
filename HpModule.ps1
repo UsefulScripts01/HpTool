@@ -30,11 +30,48 @@ function Get-HpModule {
     }
 }
 
+function Update-Bios {
+    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
+    if ($VolumeStatus -ne "FullyDecrypted") {
+        Suspend-BitLocker -MountPoint "C:" -RebootCount 1
+    }
+    Get-HPBIOSUpdates
+    Get-HPBIOSUpdates -Flash -Overwrite -Offline -Force
+}
+
 $progressPreference = "SilentlyContinue"
 
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
 if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
-    Get-HpModule
+    $Exit = "N"
+    while ($Exit -ne "Y") {
+    
+        Write-Host "Chose Option:" -ForegroundColor White -BackgroundColor DarkGreen
+        Write-Host "`n"
+        Write-Host "1 - Install HP CMSL only"
+        Write-Host "2 - Update BIOS"
+        Write-Host "3 - "
+        Write-Host "9 - Exit"
+        Write-Host "`n"
+
+        $SelectOption = Read-Host -Prompt "Select Option"
+        Switch ($SelectOption) {
+            "1" {
+                Get-HpModule
+            }
+            "2" {
+                Get-HpModule
+                Update-Bios
+            }
+            "3" {
+                Clear-Host
+            }
+            "9" {
+                $Exit = "Y"
+            }
+        }
+    }
+    
 }
 else {
     Clear-Host
