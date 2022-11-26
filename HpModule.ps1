@@ -10,8 +10,7 @@
 #>
 
 function Get-HpModule {
-    Import-Module -Name "HPCMSL" -Force
-    $HpModule = (Get-Module -All).Name
+    $HpModule = (Get-Module -ListAvailable).Name
     if ($HpModule -notcontains "HPCMSL") {
         Install-PackageProvider -Name NuGet -Force
         Install-Module PowerShellGet -AllowClobber -Force
@@ -21,7 +20,7 @@ function Get-HpModule {
             Install-Module -Name "HPCMSL" -AcceptLicense -Force
         }
         
-        Import-Module -Name "HPCMSL" -Force
+        (Get-Module -ListAvailable -Name "HP*").Name | Import-Module -Force
         Get-Module -All -Name "HP*" | Format-Table
         
         Write-Host "`n"
@@ -36,7 +35,7 @@ function Update-Bios {
         Suspend-BitLocker -MountPoint "C:" -RebootCount 1
     }
     Get-HPBIOSUpdates
-    Get-HPBIOSUpdates -Flash -Overwrite -Offline -Force
+    Get-HPBIOSUpdates -Flash -Offline -Force
 }
 
 function Get-LaptopSoftpaq {
