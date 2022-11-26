@@ -63,7 +63,7 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
         Write-Host "2 - Update BIOS"
-        Write-Host "3 - Update BIOS"
+        Write-Host "3 - Get drivers"
         Write-Host "R - Restart computer"
         Write-Host "9 - Exit"
         Write-Host "`n"
