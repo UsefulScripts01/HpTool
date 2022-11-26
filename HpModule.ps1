@@ -39,6 +39,20 @@ function Update-Bios {
     Get-HPBIOSUpdates -Flash -Overwrite -Offline -Force
 }
 
+function Get-LaptopSoftpaq {
+    $TestPath = Test-Path -Path "C:\SOFTPAQ"
+    if ($TestPath -match "False") {
+        New-Item -Name "SOFTPAQ" -ItemType Directory -Path "C:\" -Force
+    }
+    $OsVer = (Get-ComputerInfo).OSDisplayVersion
+    $CsModel = (Get-ComputerInfo).CsModel
+    New-Item -Name $CsModel -ItemType Directory -Path "C:\SOFTPAQ\" -Force
+    $Path = "C:\SOFTPAQ\$CsModel\"
+    Invoke-Item -Path $Path
+    New-HPDriverPack -OSVer $OsVer -Path $Path -RemoveOlder -Overwrite    
+}
+
+
 $progressPreference = "SilentlyContinue"
 
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
@@ -49,6 +63,7 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
         Write-Host "2 - Update BIOS"
+        Write-Host "3 - Update BIOS"
         Write-Host "R - Restart computer"
         Write-Host "9 - Exit"
         Write-Host "`n"
@@ -61,6 +76,10 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             "2" {
                 Get-HpModule
                 Update-Bios
+            }
+            "3" {
+                Get-HpModule
+                Get-LaptopSoftpaq
             }
             "R" {
                 Restart-Computer -Force
