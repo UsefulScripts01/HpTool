@@ -14,7 +14,7 @@ function Get-HpCmsl {
     $progressPreference = "SilentlyContinue"
 
     $Bios = (Get-ComputerInfo).BiosManufacturer
-    if ($Bios -eq "HP") {
+    if ($Bios -contains "HP" -or "Microsoft") {
 
         $CmslPath = Test-Path -Path "C:\Program Files\WindowsPowerShell\HP.CMSL.UninstallerData"
         if ($CmslPath -eq "False") {
