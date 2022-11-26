@@ -46,9 +46,14 @@ function Get-LaptopSoftpaq {
 
 $progressPreference = "SilentlyContinue"
 
-$Bios = (Get-ComputerInfo).BiosManufacturer
-if ($Bios -contains "HP" -or "Microsoft") {
+$Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
+if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
     Get-HpModule
     Get-Command -Module HP*
     Start-Process -FilePath "https://developers.hp.com/hp-client-management/doc/client-management-script-library"
+}
+else {
+    Write-Host "`n"
+    Write-Host "INFO: This is not an HP machine.." -ForegroundColor White -BackgroundColor DarkGreen
+    Write-Host "`n"
 }
