@@ -11,15 +11,20 @@
 
 
 function Get-HpModule {
-    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
     Install-PackageProvider -Name NuGet -Force
     Install-Module PowerShellGet -AllowClobber -Force
     Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
 
     Start-Process -FilePath "powershell" -Wait -WindowStyle Hidden {
         Install-Module -Name HPCMSL -Force -AcceptLicense
-        Import-Module -name HPCMSL -Scope Global
     }
+    Import-Module -name HPCMSL -Scope Global
+    Clear-Host
+    Get-Module -All -Name "HP*" | Format-Table
+    Write-Host "`n"
+    Write-Host "REF: https://developers.hp.com/hp-client-management/doc/client-management-script-library (Ctrl + Link to open website)"
+    Write-Host "`n"
 }
 
 function Get-LaptopSoftpaq {
@@ -49,10 +54,9 @@ $progressPreference = "SilentlyContinue"
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
 if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
     Get-HpModule
-    Get-Command -Module HP*
-    Start-Process -FilePath "https://developers.hp.com/hp-client-management/doc/client-management-script-library"
 }
 else {
+    Clear-Host
     Write-Host "`n"
     Write-Host "INFO: This is not an HP machine.." -ForegroundColor White -BackgroundColor DarkGreen
     Write-Host "`n"
