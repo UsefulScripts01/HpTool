@@ -10,7 +10,7 @@
 #>
 
 function Get-HpModule {
-    Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
+    Import-Module -Name "HPCMSL" -Force
     $HpModule = (Get-Module -All).Name
     if ($HpModule -notcontains "HPCMSL") {
         Install-PackageProvider -Name NuGet -Force
@@ -21,7 +21,7 @@ function Get-HpModule {
             Install-Module -Name "HPCMSL" -AcceptLicense -Force
         }
         
-        Import-Module -Name "HPCMSL" -Scope Global
+        Import-Module -Name "HPCMSL" -Force
         Get-Module -All -Name "HP*" | Format-Table
         
         Write-Host "`n"
@@ -52,7 +52,7 @@ function Get-LaptopSoftpaq {
     New-HPDriverPack -OSVer $OsVer -Path $Path -RemoveOlder -Overwrite    
 }
 
-
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $progressPreference = "SilentlyContinue"
 
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
