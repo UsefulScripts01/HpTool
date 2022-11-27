@@ -44,30 +44,6 @@ function Update-Bios {
     Get-HPBIOSUpdates -Flash -Offline -Force
 }
 
-function Get-AllDriver {
-    $Model = (Get-CimInstance -ClassName win32_computersystem).Model
-    New-Item -ItemType "directory" -Path "~\Desktop\$Model"
-    Set-Location -Path "~\Desktop\$Model"
-    
-    Get-SoftpaqList -Category Driver | Format-Table
-
-    $DriverList = (Get-SoftpaqList -Category Driver).Id
-    foreach ($Number in $DriverList) {
-        Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
-    }
-}
-
-function Get-SelectedDriver {
-    $Model = (Get-CimInstance -ClassName win32_computersystem).Model
-    New-Item -ItemType "directory" -Path "~\Desktop\$Model"
-    Set-Location -Path "~\Desktop\$Model"
-
-    Get-SoftpaqList -Category Driver | Format-Table
-
-    $Number = Read-Host -Prompt "Enter the SoftPaq number"
-    Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
-}
-
 function Get-OsUpdate {
     Install-PackageProvider -Name NuGet -Force
     Install-Module -Name PSWindowsUpdate -Force
@@ -108,14 +84,14 @@ function Enable-Encryption {
 
         # Backup recovery in file
         #(Get-BitLockerVolume -MountPoint "C:").KeyProtector.KeyProtectorId | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Append
-        (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object {$_} | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Force
+            (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ } | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Force
 
         # Backup recovery in AD
         #$BLV = Get-BitLockerVolume -MountPoint "C:"
         #Backup-BitLockerKeyProtector -MountPoint "C:" -KeyProtectorId $BLV.KeyProtector[1].KeyProtectorId
 
         # Other Drives
-        $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object {$_}
+        $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
 
@@ -129,6 +105,17 @@ function Enable-Encryption {
         Write-Host "`n"
         Write-Host "This machine is not connected to domain.."
         Write-Host "`n"
+    }
+}
+
+function Get-SelectedDriver {
+    $Model = (Get-CimInstance -ClassName win32_computersystem).Model
+    New-Item -ItemType "directory" -Path "~\Desktop\$Model"
+    Set-Location -Path "~\Desktop\$Model"
+
+    $DriverList = (Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -OutputMode Multiple).Id
+    foreach ($Number in $DriverList) {
+        Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
     }
 }
 
@@ -146,9 +133,7 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
         Write-Host "1 - Install HP CMSL only"
         Write-Host "2 - Update BIOS"
         Write-Host "`n"
-        Write-Host "3 - Check available drivers"
-        Write-Host "4 - Install ALL available drivers"
-        Write-Host "5 - Install SELECTED driver"
+        Write-Host "3 - Download amd install HP drivers"
         Write-Host "`n"
         Write-Host "6 - Windows Updates"
         Write-Host "`n"
@@ -169,16 +154,6 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
                 Update-Bios
             }
             "3" {
-                Get-HpModule
-                Get-SoftpaqList -Category Driver | Format-Table
-                $Date = Get-Date -Format "dd.MM.yyyy"
-                Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - Available Drivers.txt"
-            }
-            "4" {
-                Get-HpModule
-                Get-AllDriver
-            }
-            "5" {
                 Get-HpModule
                 Get-SelectedDriver
             }
