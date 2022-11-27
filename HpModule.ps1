@@ -99,36 +99,42 @@ function Disable-Encryption {
 }
 
 function Enable-Encryption {
-    gpupdate /force
 
-    # Add protectors - Recovery and PIN
-    Add-BitLockerKeyProtector -MountPoint c: -RecoveryPasswordProtector
-    $SecureString = ConvertTo-SecureString "112233" -AsPlainText -Force
-    
-    # Enable BitLocker on C:
-    Enable-BitLocker -MountPoint "C:" -EncryptionMethod Aes256 -SkipHardwareTest -TpmAndPinProtector -Pin $SecureString
-    
-    # Backup recovery in file
-    #(Get-BitLockerVolume -MountPoint C:).KeyProtector.KeyProtectorId | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Append
-    (Get-BitLockerVolume -MountPoint C:).KeyProtector.RecoveryPassword | Where-Object {$_} | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Force
-    
-    # Backup recovery in AD
-    #$BLV = Get-BitLockerVolume -MountPoint "C:"
-    #Backup-BitLockerKeyProtector -MountPoint "C:" -KeyProtectorId $BLV.KeyProtector[1].KeyProtectorId
-    
-    # Other Drives
-    $RecoveryPass = (Get-BitLockerVolume -MountPoint C:).KeyProtector.RecoveryPassword
-    $RecoveryPass = $RecoveryPass | Where-Object {$_}
-    Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
-    Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
+    $Domain = (Get-CimInstance -ClassName Win32_ComputerSystem).Domain
+    if ($Domain -eq "ds.mot.com") {
+        gpupdate /force
 
-    While ((Get-BitLockerVolume).VolumeStatus -ne "FullyEncrypted") {
-        Clear-Host
-        Get-BitLockerVolume
-        Start-Sleep -second 10
+        # Add protectors and enable BitLocker
+        Add-BitLockerKeyProtector -MountPoint c: -RecoveryPasswordProtector
+        $SecureString = ConvertTo-SecureString "112233" -AsPlainText -Force
+        Enable-BitLocker -MountPoint "C:" -EncryptionMethod Aes256 -SkipHardwareTest -TpmAndPinProtector -Pin $SecureString
+
+        # Backup recovery in file
+        #(Get-BitLockerVolume -MountPoint "C:").KeyProtector.KeyProtectorId | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Append
+        (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object {$_} | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Force
+
+        # Backup recovery in AD
+        #$BLV = Get-BitLockerVolume -MountPoint "C:"
+        #Backup-BitLockerKeyProtector -MountPoint "C:" -KeyProtectorId $BLV.KeyProtector[1].KeyProtectorId
+
+        # Other Drives
+        $RecoveryPass = (Get-BitLockerVolume -MountPoint C:).KeyProtector.RecoveryPassword
+        $RecoveryPass = $RecoveryPass | Where-Object {$_}
+        Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+        Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
+
+        While ((Get-BitLockerVolume).VolumeStatus -ne "FullyEncrypted") {
+            Clear-Host
+            Get-BitLockerVolume
+            Start-Sleep -second 10
+        }
+    }
+    else {
+        Write-Host "`n"
+        Write-Host "This machine is not connected to ds.mot.com"
+        Write-Host "`n"
     }
 }
-
 
 
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
