@@ -144,7 +144,7 @@ Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $progressPreference = "SilentlyContinue"
 
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
-if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
+if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "Microsoft")) {
     $Exit = "N"
     while ($Exit -ne "Y") {
         Write-Host "Chose Option:" -ForegroundColor White -BackgroundColor DarkGreen
