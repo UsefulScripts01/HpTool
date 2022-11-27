@@ -29,7 +29,6 @@ function Get-HpModule {
     }
     else {
         (Get-Module -ListAvailable -Name "HP*").Name | Import-Module -Force
-        Get-Module -All -Name "HP*" | Format-Table
     }
 }
 
