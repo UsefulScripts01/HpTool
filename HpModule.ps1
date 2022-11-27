@@ -27,6 +27,10 @@ function Get-HpModule {
         Write-Host "REF: https://developers.hp.com/hp-client-management/doc/client-management-script-library (Ctrl + Link to open website)"
         Write-Host "`n"
     }
+    else {
+        (Get-Module -ListAvailable -Name "HP*").Name | Import-Module -Force
+        Get-Module -All -Name "HP*" | Format-Table
+    }
 }
 
 function Update-Bios {
@@ -38,18 +42,19 @@ function Update-Bios {
     Get-HPBIOSUpdates -Flash -Offline -Force
 }
 
-function Get-LaptopSoftpaq {
-    $TestPath = Test-Path -Path "C:\SOFTPAQ"
-    if ($TestPath -match "False") {
-        New-Item -Name "SOFTPAQ" -ItemType Directory -Path "C:\" -Force
+function Get-Drivers {
+    Set-Location -Path "C:\Windows\Temp"
+    Get-SoftpaqList -Category Driver | Format-Table
+    $Driver = (Get-SoftpaqList -Category Driver).Id
+    foreach ($Id in $Driver) {
+        Get-Softpaq -Number $Id -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
     }
-    $OsVer = (Get-ComputerInfo).OSDisplayVersion
-    $CsModel = (Get-ComputerInfo).CsModel
-    New-Item -Name $CsModel -ItemType Directory -Path "C:\SOFTPAQ\" -Force
-    $Path = "C:\SOFTPAQ\$CsModel\"
-    Invoke-Item -Path $Path
-    New-HPDriverPack -OSVer $OsVer -Path $Path -RemoveOlder -Overwrite    
+    Clear-SoftpaqCache
+    Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Force
+    $Date = Get-Date -Format "dd.MM.yyyy"
+    Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - InstalledDrivers.txt"
 }
+
 
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $progressPreference = "SilentlyContinue"
@@ -62,7 +67,7 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
         Write-Host "2 - Update BIOS"
-        Write-Host "3 - Get drivers"
+        Write-Host "3 - Get HP drivers"
         Write-Host "R - Restart computer"
         Write-Host "9 - Exit"
         Write-Host "`n"
