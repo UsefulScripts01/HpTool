@@ -99,26 +99,20 @@ function Disable-Encryption {
 }
 
 function Enable-Encryption {
+    gpupdate /force
 
-    $RegPath = "HKLM:\Software\Policies\Microsoft"
-    New-Item -Path "$RegPath" -Name "FVE" -Force
-    #gpupdate /force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "UseEnhancedPin" -Value 1 -PropertyType DWord -Force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "UseAdvancedStartup" -Value 1 -PropertyType DWord -Force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "EnableBDEWithNoTPM" -Value 0 -PropertyType DWord -Force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPM" -Value 0 -PropertyType DWord -Force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPMPIN" -Value 2 -PropertyType DWord -Force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPMKey" -Value 0 -PropertyType DWord -Force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPMKeyPIN" -Value 0 -PropertyType DWord -Force
-    New-ItemProperty -Path "$RegPath\FVE" -Name "MinimumPIN" -Value 6 -PropertyType DWord -Force
-
-    # Drive C:
-    $SecureString = ConvertTo-SecureString "112233" -AsPlainText -Force
-    Get-BitLockerVolume -MountPoint C: | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -TpmAndPinProtector -Pin $SecureString
-    
+    # Add protectors - Recovery and PIN
     Add-BitLockerKeyProtector -MountPoint c: -RecoveryPasswordProtector
-    (Get-BitLockerVolume -MountPoint C:).KeyProtector.recoverypassword | Where-Object {$_} | Out-File -FilePath "C:\$env:COMPUTERNAME.txt" -Force
+    $SecureString = ConvertTo-SecureString "112233" -AsPlainText -Force
     
+    # Enable BitLocker on C:
+    Enable-BitLocker -MountPoint "C:" -EncryptionMethod Aes256 -SkipHardwareTest -TpmAndPinProtector -Pin $SecureString
+    
+    # Backup recovery in file
+    #(Get-BitLockerVolume -MountPoint C:).KeyProtector.KeyProtectorId | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Append
+    (Get-BitLockerVolume -MountPoint C:).KeyProtector.RecoveryPassword | Where-Object {$_} | Out-File -FilePath "~\Desktop\RecoveryKey.txt" -Force
+    
+    # Backup recovery in AD
     #$BLV = Get-BitLockerVolume -MountPoint "C:"
     #Backup-BitLockerKeyProtector -MountPoint "C:" -KeyProtectorId $BLV.KeyProtector[1].KeyProtectorId
     
