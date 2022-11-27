@@ -45,46 +45,40 @@ function Update-Bios {
 }
 
 function Get-AllDriver {
-    $Path = Test-Path -Path "C:\Temp\Drivers"
-    if ($Path -match "False") {
-        New-Item -ItemType "directory" -Path "C:\Temp\Drivers"
-    }
-    Set-Location -Path "C:\Temp\Drivers"
+    $Model = (Get-CimInstance -ClassName win32_computersystem).Model
+    New-Item -ItemType "directory" -Path "~\Desktop\$Model"
+    Set-Location -Path "~\Desktop\$Model"
+    
     Get-SoftpaqList -Category Driver | Format-Table
 
     $DriverList = (Get-SoftpaqList -Category Driver).Id
     foreach ($Number in $DriverList) {
         Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
     }
-    Remove-Item -Path "C:\Temp\Drivers" -Recurse -Force
 }
 
 function Get-SelectedDriver {
-    $Path = Test-Path -Path "C:\Temp\Drivers"
-    if ($Path -match "False") {
-        New-Item -ItemType "directory" -Path "C:\Temp\Drivers"
-    }
-    Set-Location -Path "C:\Temp\Drivers"
+    $Model = (Get-CimInstance -ClassName win32_computersystem).Model
+    New-Item -ItemType "directory" -Path "~\Desktop\$Model"
+    Set-Location -Path "~\Desktop\$Model"
+
     Get-SoftpaqList -Category Driver | Format-Table
 
     $Number = Read-Host -Prompt "Enter the SoftPaq number"
     Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
-    Remove-Item -Path "C:\Temp\Drivers" -Recurse -Force
 }
 
-# Windows Updates
 function Get-OsUpdate {
-    $ModuleList = (Get-Module -ListAvailable).Name
-    if ($ModuleList -notcontains "PSWindowsUpdate") {
-        Install-PackageProvider -Name NuGet -Force
-        Install-Module -Name PSWindowsUpdate -Force
-        Import-Module -Name PSWindowsUpdate -Force
-    }
+    Install-PackageProvider -Name NuGet -Force
+    Install-Module -Name PSWindowsUpdate -Force
+    Import-Module -Name PSWindowsUpdate -Force
 
-    Write-Host "`n"
-    Write-Host "Checking for updates.." -ForegroundColor White -BackgroundColor DarkGreen
-    Write-Host "`n"
-    Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
+    Start-Process -FilePath "powershell" -Wait -WindowStyle Maximized {
+        Write-Host "`n"
+        Write-Host "Checking for updates.." -ForegroundColor White -BackgroundColor DarkGreen
+        Write-Host "`n"
+        Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
+    }
 }
 
 # Disable SED Encryption
@@ -102,13 +96,13 @@ function Disable-Encryption {
 }
 
 function Enable-Encryption {
-
-    $Domain = (Get-CimInstance -ClassName Win32_ComputerSystem).Domain
-    if ($Domain -eq "ds.mot.com") {
+    $DomainRole = (Get-CimInstance -ClassName Win32_ComputerSystem -Property *).DomainRole
+    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
+    if (($DomainRole -eq "1") -and ($VolumeStatus -eq "FullyDecrypted")) {
         gpupdate /force
 
         # Add protectors and enable BitLocker
-        Add-BitLockerKeyProtector -MountPoint c: -RecoveryPasswordProtector
+        Add-BitLockerKeyProtector -MountPoint "C:" -RecoveryPasswordProtector
         $SecureString = ConvertTo-SecureString "112233" -AsPlainText -Force
         Enable-BitLocker -MountPoint "C:" -EncryptionMethod Aes256 -SkipHardwareTest -TpmAndPinProtector -Pin $SecureString
 
@@ -121,8 +115,7 @@ function Enable-Encryption {
         #Backup-BitLockerKeyProtector -MountPoint "C:" -KeyProtectorId $BLV.KeyProtector[1].KeyProtectorId
 
         # Other Drives
-        $RecoveryPass = (Get-BitLockerVolume -MountPoint C:).KeyProtector.RecoveryPassword
-        $RecoveryPass = $RecoveryPass | Where-Object {$_}
+        $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object {$_}
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
 
@@ -134,7 +127,7 @@ function Enable-Encryption {
     }
     else {
         Write-Host "`n"
-        Write-Host "This machine is not connected to ds.mot.com"
+        Write-Host "This machine is not connected to domain.."
         Write-Host "`n"
     }
 }
@@ -147,6 +140,7 @@ $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
 if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "Microsoft")) {
     $Exit = "N"
     while ($Exit -ne "Y") {
+        Write-Host "`n"
         Write-Host "Chose Option:" -ForegroundColor White -BackgroundColor DarkGreen
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
