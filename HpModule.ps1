@@ -71,10 +71,10 @@ function Get-OsUpdate {
     Install-Module -Name PSWindowsUpdate -Force
     Import-Module -Name PSWindowsUpdate -Force
 
-    Start-Process -FilePath "powershell" -Wait -WindowStyle Maximized {
-        Write-Host "`nINFO: Closing this window DOES NOT interrupt the rest of the deployment process.`nChecking for updates..`n" -ForegroundColor White -BackgroundColor DarkGreen
-        Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
-    }
+    Write-Host "`n"
+    Write-Host "Checking for updates.." -ForegroundColor White -BackgroundColor DarkGreen
+    Write-Host "`n"
+    Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
 }
 
 
@@ -118,7 +118,7 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
                 Get-HpModule
                 Get-SelectedDriver
             }
-            "5" {
+            "6" {
                 Get-OsUpdate
             }
             "R" {
