@@ -88,9 +88,10 @@ function Get-OsUpdate {
 }
 
 function Disable-Encryption {
+    Clear-BitLockerAutoUnlock
     Get-BitLockerVolume | Disable-BitLocker
 
-    While ((Get-BitLockerVolume -MountPoint $Partition).VolumeStatus -ne "FullyDecrypted") {
+    While ((Get-BitLockerVolume).VolumeStatus -ne "FullyDecrypted") {
         Clear-Host
         Get-BitLockerVolume
         Start-Sleep -second 10
@@ -133,28 +134,6 @@ function Enable-Encryption {
         Start-Sleep -second 10
     }
 }
-
-function Copy-RecoveryKey {
-
-
-
-    # Get BitLocker Status
-    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
-
-    if ($Domain -eq "ds.mot.com" -and $VolumeStatus -ne "FullyDecrypted") {
-        $DateTime = Get-Date -Format "dd.MM.yyyy HH:mm"
-        $RecoveryKey = Get-ChildItem -Path "C:\$Coreid*.txt" | Get-Content
-    
-        $NewEntry = New-Object -Type PSObject -Property @{
-            'DATE'     = $DateTime
-            'MACHINE'  = $env:computername
-            'RECOVERY' = $RecoveryKey
-        }
-        $NewEntry | Select-Object -Property date, machine, recovery | Export-Csv -Path "$DeployRoot\Logs\Temp\RecoveryKeys.csv" -Append -Force -NoTypeInformation
-        Copy-Item -Path "$DeployRoot\Logs\Temp\RecoveryKeys.csv" -Destination "$DeployRoot\Logs\" -Force
-    }
-}
-
 
 
 
