@@ -1,8 +1,8 @@
 <#
     .SYNOPSIS
-        
+
     .DESCRIPTION
-        
+
     .NOTES
 
     .LINK
@@ -12,25 +12,25 @@
 function Get-HpModule {
     $ModuleList = (Get-Module).Name
     if ($ModuleList -notcontains "HPCMSL") {
-        
+
         Install-PackageProvider -Name NuGet -Force
         Install-Module PowerShellGet -AllowClobber -Force
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-        
+
         Start-Process -FilePath "powershell" -Wait -WindowStyle Hidden {
             Install-Module -Name "HPCMSL" -AcceptLicense -Force
         }
-        
+
         Get-Module -ListAvailable -Name "HP*" | Import-Module -Global -Force
-                
+
         Write-Host "`n"
-        Write-Host "HPCMSL was oinstalled.."
-        Write-Host "REF: https://developers.hp.com/hp-client-management/doc/client-management-script-library (Ctrl + Link to open website)"
+        Write-Host "HPCMSL was installed.."
+        Write-Host "REF: https://developers.hp.com/hp-client-management/doc/client-management-script-library"
         Write-Host "`n"
     }
     else {
         Write-Host "`n"
-        Write-Host "HPCMSL was oinstalled.."
+        Write-Host "HPCMSL was installed.."
         Write-Host "`n"
     }
 }
@@ -51,7 +51,7 @@ function Get-AllDriver {
     }
     Set-Location -Path "C:\Temp\Drivers"
     Get-SoftpaqList -Category Driver | Format-Table
-    
+
     $DriverList = (Get-SoftpaqList -Category Driver).Id
     foreach ($Number in $DriverList) {
         Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
@@ -66,7 +66,7 @@ function Get-SelectedDriver {
     }
     Set-Location -Path "C:\Temp\Drivers"
     Get-SoftpaqList -Category Driver | Format-Table
-    
+
     $Number = Read-Host -Prompt "Enter the SoftPaq number"
     Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
     Remove-Item -Path "C:\Temp\Drivers" -Recurse -Force
@@ -76,9 +76,9 @@ function Get-SelectedDriver {
 function Get-OsUpdate {
     $ModuleList = (Get-Module -ListAvailable).Name
     if ($ModuleList -notcontains "PSWindowsUpdate") {
-    Install-PackageProvider -Name NuGet -Force
-    Install-Module -Name PSWindowsUpdate -Force
-    Import-Module -Name PSWindowsUpdate -Force
+        Install-PackageProvider -Name NuGet -Force
+        Install-Module -Name PSWindowsUpdate -Force
+        Import-Module -Name PSWindowsUpdate -Force
     }
 
     Write-Host "`n"
@@ -86,6 +86,76 @@ function Get-OsUpdate {
     Write-Host "`n"
     Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
 }
+
+function Disable-Encryption {
+    Get-BitLockerVolume | Disable-BitLocker
+
+    While ((Get-BitLockerVolume -MountPoint $Partition).VolumeStatus -ne "FullyDecrypted") {
+        Clear-Host
+        Get-BitLockerVolume
+        Start-Sleep -second 10
+    }
+}
+
+function Enable-Encryption {
+
+    $RegPath = "HKLM:\Software\Policies\Microsoft"
+    New-Item -Path "$RegPath" -Name "FVE" -Force
+    #gpupdate /force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "UseEnhancedPin" -Value 1 -PropertyType DWord -Force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "UseAdvancedStartup" -Value 1 -PropertyType DWord -Force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "EnableBDEWithNoTPM" -Value 0 -PropertyType DWord -Force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPM" -Value 0 -PropertyType DWord -Force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPMPIN" -Value 2 -PropertyType DWord -Force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPMKey" -Value 0 -PropertyType DWord -Force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "UseTPMKeyPIN" -Value 0 -PropertyType DWord -Force
+    New-ItemProperty -Path "$RegPath\FVE" -Name "MinimumPIN" -Value 6 -PropertyType DWord -Force
+
+    # Drive C:
+    $SecureString = ConvertTo-SecureString "112233" -AsPlainText -Force
+    Get-BitLockerVolume -MountPoint C: | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -TpmAndPinProtector -Pin $SecureString
+    
+    Add-BitLockerKeyProtector -MountPoint c: -RecoveryPasswordProtector
+    (Get-BitLockerVolume -MountPoint C:).KeyProtector.recoverypassword | Where-Object {$_} | Out-File -FilePath "C:\$env:COMPUTERNAME.txt" -Force
+    
+    #$BLV = Get-BitLockerVolume -MountPoint "C:"
+    #Backup-BitLockerKeyProtector -MountPoint "C:" -KeyProtectorId $BLV.KeyProtector[1].KeyProtectorId
+    
+    # Other Drives
+    $RecoveryPass = (Get-BitLockerVolume -MountPoint C:).KeyProtector.RecoveryPassword
+    $RecoveryPass = $RecoveryPass | Where-Object {$_}
+    Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+    Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
+
+    While ((Get-BitLockerVolume).VolumeStatus -ne "FullyEncrypted") {
+        Clear-Host
+        Get-BitLockerVolume
+        Start-Sleep -second 10
+    }
+}
+
+function Copy-RecoveryKey {
+
+
+
+    # Get BitLocker Status
+    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
+
+    if ($Domain -eq "ds.mot.com" -and $VolumeStatus -ne "FullyDecrypted") {
+        $DateTime = Get-Date -Format "dd.MM.yyyy HH:mm"
+        $RecoveryKey = Get-ChildItem -Path "C:\$Coreid*.txt" | Get-Content
+    
+        $NewEntry = New-Object -Type PSObject -Property @{
+            'DATE'     = $DateTime
+            'MACHINE'  = $env:computername
+            'RECOVERY' = $RecoveryKey
+        }
+        $NewEntry | Select-Object -Property date, machine, recovery | Export-Csv -Path "$DeployRoot\Logs\Temp\RecoveryKeys.csv" -Append -Force -NoTypeInformation
+        Copy-Item -Path "$DeployRoot\Logs\Temp\RecoveryKeys.csv" -Destination "$DeployRoot\Logs\" -Force
+    }
+}
+
+
 
 
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
