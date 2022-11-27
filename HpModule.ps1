@@ -65,6 +65,18 @@ function Get-SelectedDriver {
     Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - InstalledDrivers.txt"
 }
 
+# Windows Updates
+function Get-OsUpdate {
+    Install-PackageProvider -Name NuGet -Force
+    Install-Module -Name PSWindowsUpdate -Force
+    Import-Module -Name PSWindowsUpdate -Force
+
+    Start-Process -FilePath "powershell" -Wait -WindowStyle Maximized {
+        Write-Host "`nINFO: Closing this window DOES NOT interrupt the rest of the deployment process.`nChecking for updates..`n" -ForegroundColor White -BackgroundColor DarkGreen
+        Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
+    }
+}
+
 
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $progressPreference = "SilentlyContinue"
@@ -80,6 +92,7 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "3 - Check available drivers"
         Write-Host "4 - Install ALL available drivers"
         Write-Host "5 - Install SELECTED driver"
+        Write-Host "6 - Windows Updates"
         Write-Host "R - Restart computer"
         Write-Host "9 - Exit"
         Write-Host "`n"
@@ -104,6 +117,9 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             "5" {
                 Get-HpModule
                 Get-SelectedDriver
+            }
+            "5" {
+                Get-OsUpdate
             }
             "R" {
                 Restart-Computer -Force
