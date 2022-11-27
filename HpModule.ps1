@@ -42,7 +42,7 @@ function Update-Bios {
     Get-HPBIOSUpdates -Flash -Offline -Force
 }
 
-function Get-Drivers {
+function Get-Driver {
     Set-Location -Path "C:\Windows\Temp"
     Get-SoftpaqList -Category Driver | Format-Table
     $Driver = (Get-SoftpaqList -Category Driver).Id
@@ -67,7 +67,8 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
         Write-Host "2 - Update BIOS"
-        Write-Host "3 - Get HP drivers"
+        Write-Host "3 - Check available drivers"
+        Write-Host "4 - Install available drivers"
         Write-Host "R - Restart computer"
         Write-Host "9 - Exit"
         Write-Host "`n"
@@ -83,7 +84,11 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             }
             "3" {
                 Get-HpModule
-                Get-LaptopSoftpaq
+                Get-SoftpaqList -Category Driver | Format-Table
+            }
+            "4" {
+                Get-HpModule
+                Get-Driver
             }
             "R" {
                 Restart-Computer -Force
