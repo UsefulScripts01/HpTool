@@ -10,8 +10,9 @@
 #>
 
 function Get-HpModule {
-    $ModuleList = (Get-Module -ListAvailable).Name
+    $ModuleList = (Get-Module).Name
     if ($ModuleList -notcontains "HPCMSL") {
+        
         Install-PackageProvider -Name NuGet -Force
         Install-Module PowerShellGet -AllowClobber -Force
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
@@ -20,15 +21,17 @@ function Get-HpModule {
             Install-Module -Name "HPCMSL" -AcceptLicense -Force
         }
         
-        (Get-Module -ListAvailable -Name "HP*").Name | Import-Module -Force
-        Get-Module -All -Name "HP*" | Format-Table
-        
+        Get-Module -ListAvailable -Name "HP*" | Import-Module -Global -Force
+                
         Write-Host "`n"
+        Write-Host "HPCMSL was oinstalled.."
         Write-Host "REF: https://developers.hp.com/hp-client-management/doc/client-management-script-library (Ctrl + Link to open website)"
         Write-Host "`n"
     }
     else {
-        (Get-Module -ListAvailable -Name "HP*").Name | Import-Module -Force
+        Write-Host "`n"
+        Write-Host "HPCMSL was oinstalled.."
+        Write-Host "`n"
     }
 }
 
@@ -138,7 +141,6 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             }
         }
     }
-    
 }
 else {
     Clear-Host
