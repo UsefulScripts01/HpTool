@@ -87,14 +87,17 @@ function Get-OsUpdate {
     Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
 }
 
+# Disable SED Encryption
 function Disable-Encryption {
-    Clear-BitLockerAutoUnlock
-    Get-BitLockerVolume | Disable-BitLocker
+    if ((Get-BitLockerVolume).VolumeStatus -ne "FullyDecrypted") {
+        Clear-BitLockerAutoUnlock
+        Get-BitLockerVolume | Disable-BitLocker
 
-    While ((Get-BitLockerVolume).VolumeStatus -ne "FullyDecrypted") {
-        Clear-Host
-        Get-BitLockerVolume
-        Start-Sleep -second 10
+        While ((Get-BitLockerVolume).VolumeStatus -ne "FullyDecrypted") {
+            Clear-Host
+            Get-BitLockerVolume
+            Start-Sleep -second 10
+        }
     }
 }
 
@@ -148,10 +151,16 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
         Write-Host "2 - Update BIOS"
+        Write-Host "`n"
         Write-Host "3 - Check available drivers"
         Write-Host "4 - Install ALL available drivers"
         Write-Host "5 - Install SELECTED driver"
+        Write-Host "`n"
         Write-Host "6 - Windows Updates"
+        Write-Host "`n"
+        Write-Host "7 - Disable BitLocker - ALL DRIVES"
+        Write-Host "8 - Enable BitLocker - ALL DRIVES / NO RESTART"
+        Write-Host "`n"
         Write-Host "R - Restart computer"
         Write-Host "Q - Exit"
         Write-Host "`n"
@@ -181,6 +190,12 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             }
             "6" {
                 Get-OsUpdate
+            }
+            "7" {
+                Disable-Encryption
+            }
+            "8" {
+                Enable-Encryption
             }
             "R" {
                 Restart-Computer -Force
