@@ -9,29 +9,12 @@
         https://github.com/UsefulScripts01/HpModule
 #>
 
+
 function Get-HpModule {
-    $ModuleList = (Get-Module).Name
-    if ($ModuleList -notcontains "HPCMSL") {
-
-        Install-PackageProvider -Name NuGet -Force
-        Install-Module PowerShellGet -AllowClobber -Force
-        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-
-        Start-Process -FilePath "powershell" -Wait -WindowStyle Hidden {
-            Install-Module -Name "HPCMSL" -AcceptLicense -Force
-        }
-
-        Get-Module -ListAvailable -Name "HP*" | Import-Module -Global -Force
-
-        Write-Host "`n"
-        Write-Host "HPCMSL was installed.."
-        Write-Host "REF: https://developers.hp.com/hp-client-management/doc/client-management-script-library"
-        Write-Host "`n"
-    }
-    else {
-        Write-Host "`n"
-        Write-Host "HPCMSL was installed.."
-        Write-Host "`n"
+    $ModuleList = (Get-Module -Name HPCMSL -ListAvailable).Name
+    if ($ModuleList -notmatch "HPCMS") {
+        Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
+        Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
     }
 }
 
@@ -109,18 +92,23 @@ function Enable-Encryption {
 }
 
 function Get-SelectedDriver {
-    $Model = (Get-CimInstance -ClassName win32_computersystem).Model
-    New-Item -ItemType "directory" -Path "~\Desktop\$Model"
-    Set-Location -Path "~\Desktop\$Model"
+    $Folder = Test-Path -Path "~\Desktop\HpDrivers"
+    if ($Folder -match "False") {
+        New-Item -ItemType "directory" -Path "~\Desktop\HpDrivers"
+    }
+    Set-Location -Path "~\Desktop\HpDrivers"
 
-    $DriverList = (Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -OutputMode Multiple).Id
-    foreach ($Number in $DriverList) {
+    $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -OutputMode Multiple
+    foreach ($Number in $DriverList.id) {
         Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
     }
+
+    Write-Host "`n"
+    Write-Host "the following drivers have been installed:" -ForegroundColor White -BackgroundColor DarkGreen
+    $DriverList | Format-Table -AutoSize
 }
 
 
-Set-ExecutionPolicy -ExecutionPolicy Bypass -Force -Scope Process
 $progressPreference = "SilentlyContinue"
 
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
