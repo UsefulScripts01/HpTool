@@ -47,30 +47,26 @@ function Get-AllDriver {
         New-Item -ItemType "directory" -Path "C:\Temp\Drivers"
     }
     Set-Location -Path "C:\Temp\Drivers"
-
-    #$InfFile = (Get-ChildItem -Path "C:\Windows\temp\Drivers" -Recurse -Include "*.inf").FullName
-    #foreach ($Id in $InfFile) { pnputil /add-driver $Id /install /subdirs }
-
     Get-SoftpaqList -Category Driver | Format-Table
+    
     $DriverList = (Get-SoftpaqList -Category Driver).Id
     foreach ($Number in $DriverList) {
-        Get-Softpaq -Number $Number -Overwrite skip -Action silentinstall -ErrorAction SilentlyContinue
+        Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
     }
-    
-    Get-ChildItem -Path C:\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Force
-    $Date = Get-Date -Format "dd.MM.yyyy"
-    Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - InstalledDrivers.txt"
+    Remove-Item -Path "C:\Temp\Drivers" -Recurse -Force
 }
 
 function Get-SelectedDriver {
-    Set-Location -Path "C:\Windows\Temp"
+    $Path = Test-Path -Path "C:\Temp\Drivers"
+    if ($Path -match "False") {
+        New-Item -ItemType "directory" -Path "C:\Temp\Drivers"
+    }
+    Set-Location -Path "C:\Temp\Drivers"
     Get-SoftpaqList -Category Driver | Format-Table
-    $Driver = Read-Host -Prompt "Enter the SoftPaq number"
-    Get-Softpaq -Number $Driver -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
-    Clear-SoftpaqCache
-    Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Force
-    $Date = Get-Date -Format "dd.MM.yyyy"
-    Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - InstalledDrivers.txt"
+    
+    $Number = Read-Host -Prompt "Enter the SoftPaq number"
+    Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
+    Remove-Item -Path "C:\Temp\Drivers" -Recurse -Force
 }
 
 # Windows Updates
@@ -105,7 +101,7 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "5 - Install SELECTED driver"
         Write-Host "6 - Windows Updates"
         Write-Host "R - Restart computer"
-        Write-Host "9 - Exit"
+        Write-Host "Q - Exit"
         Write-Host "`n"
 
         $SelectOption = Read-Host -Prompt "Select Option"
@@ -137,7 +133,7 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             "R" {
                 Restart-Computer -Force
             }
-            "9" {
+            "Q" {
                 $Exit = "Y"
             }
         }
