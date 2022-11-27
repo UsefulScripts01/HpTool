@@ -10,8 +10,8 @@
 #>
 
 function Get-HpModule {
-    $HpModule = (Get-Module -ListAvailable).Name
-    if ($HpModule -notcontains "HPCMSL") {
+    $ModuleList = (Get-Module -ListAvailable).Name
+    if ($ModuleList -notcontains "HPCMSL") {
         Install-PackageProvider -Name NuGet -Force
         Install-Module PowerShellGet -AllowClobber -Force
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
@@ -42,14 +42,22 @@ function Update-Bios {
 }
 
 function Get-AllDriver {
-    Set-Location -Path "C:\Windows\Temp"
-    Get-SoftpaqList -Category Driver | Format-Table
-    $Driver = (Get-SoftpaqList -Category Driver).Id
-    foreach ($Id in $Driver) {
-        Get-Softpaq -Number $Id -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
+    $Path = Test-Path -Path "C:\Temp\Drivers"
+    if ($Path -match "False") {
+        New-Item -ItemType "directory" -Path "C:\Temp\Drivers"
     }
-    Clear-SoftpaqCache
-    Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Force
+    Set-Location -Path "C:\Temp\Drivers"
+
+    #$InfFile = (Get-ChildItem -Path "C:\Windows\temp\Drivers" -Recurse -Include "*.inf").FullName
+    #foreach ($Id in $InfFile) { pnputil /add-driver $Id /install /subdirs }
+
+    Get-SoftpaqList -Category Driver | Format-Table
+    $DriverList = (Get-SoftpaqList -Category Driver).Id
+    foreach ($Number in $DriverList) {
+        Get-Softpaq -Number $Number -Overwrite skip -Action silentinstall -ErrorAction SilentlyContinue
+    }
+    
+    Get-ChildItem -Path C:\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Force
     $Date = Get-Date -Format "dd.MM.yyyy"
     Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - InstalledDrivers.txt"
 }
@@ -67,9 +75,12 @@ function Get-SelectedDriver {
 
 # Windows Updates
 function Get-OsUpdate {
+    $ModuleList = (Get-Module -ListAvailable).Name
+    if ($ModuleList -notcontains "PSWindowsUpdate") {
     Install-PackageProvider -Name NuGet -Force
     Install-Module -Name PSWindowsUpdate -Force
     Import-Module -Name PSWindowsUpdate -Force
+    }
 
     Write-Host "`n"
     Write-Host "Checking for updates.." -ForegroundColor White -BackgroundColor DarkGreen
@@ -109,6 +120,8 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             "3" {
                 Get-HpModule
                 Get-SoftpaqList -Category Driver | Format-Table
+                $Date = Get-Date -Format "dd.MM.yyyy"
+                Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - Available Drivers.txt"
             }
             "4" {
                 Get-HpModule
