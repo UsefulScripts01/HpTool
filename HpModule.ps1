@@ -42,13 +42,24 @@ function Update-Bios {
     Get-HPBIOSUpdates -Flash -Offline -Force
 }
 
-function Get-Driver {
+function Get-AllDriver {
     Set-Location -Path "C:\Windows\Temp"
     Get-SoftpaqList -Category Driver | Format-Table
     $Driver = (Get-SoftpaqList -Category Driver).Id
     foreach ($Id in $Driver) {
         Get-Softpaq -Number $Id -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
     }
+    Clear-SoftpaqCache
+    Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Force
+    $Date = Get-Date -Format "dd.MM.yyyy"
+    Get-SoftpaqList -Category Driver | Format-Table | Out-File -FilePath "~\Desktop\$Date - InstalledDrivers.txt"
+}
+
+function Get-SelectedDriver {
+    Set-Location -Path "C:\Windows\Temp"
+    Get-SoftpaqList -Category Driver | Format-Table
+    $Driver = Read-Host -Prompt "Enter the SoftPaq number"
+    Get-Softpaq -Number $Driver -Overwrite no -Action silentinstall -ErrorAction SilentlyContinue
     Clear-SoftpaqCache
     Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Force
     $Date = Get-Date -Format "dd.MM.yyyy"
@@ -68,7 +79,8 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
         Write-Host "1 - Install HP CMSL only"
         Write-Host "2 - Update BIOS"
         Write-Host "3 - Check available drivers"
-        Write-Host "4 - Install available drivers"
+        Write-Host "4 - Install ALL available drivers"
+        Write-Host "5 - Install SELECTED driver"
         Write-Host "R - Restart computer"
         Write-Host "9 - Exit"
         Write-Host "`n"
@@ -88,7 +100,11 @@ if (($Bios -match "HP") -or ($Bios -match "Microsoft")) {
             }
             "4" {
                 Get-HpModule
-                Get-Driver
+                Get-AllDriver
+            }
+            "5" {
+                Get-HpModule
+                Get-SelectedDriver
             }
             "R" {
                 Restart-Computer -Force
