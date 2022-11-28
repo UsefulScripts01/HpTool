@@ -58,7 +58,55 @@ function Enable-Encryption {
     $DomainRole = (Get-CimInstance -ClassName Win32_ComputerSystem -Property *).DomainRole
     $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
     if (($DomainRole -eq "1") -and ($VolumeStatus -eq "FullyDecrypted")) {
-        gpupdate /force
+
+        # FVE
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\" -Name FVE -Force
+        $FVE = "HKLM:\SOFTWARE\Policies\Microsoft\FVE\"
+        New-ItemProperty -Path "$FVE" -Name ActiveDirectoryBackup -Value 1
+        New-ItemProperty -Path "$FVE" -Name RequireActiveDirectoryBackup -Value 1
+        New-ItemProperty -Path "$FVE" -Name ActiveDirectoryInfoToStore -Value 1
+        New-ItemProperty -Path "$FVE" -Name UseRecoveryPassword -Value 1
+        New-ItemProperty -Path "$FVE" -Name UseRecoveryDrive -Value 0
+        New-ItemProperty -Path "$FVE" -Name EncryptionMethod -Value 4
+        New-ItemProperty -Path "$FVE" -Name UseAdvancedStartup -Value 1
+        New-ItemProperty -Path "$FVE" -Name EnableBDEWithNoTPM -Value 1
+        New-ItemProperty -Path "$FVE" -Name UseTPM -Value 0
+        New-ItemProperty -Path "$FVE" -Name UseTPMPIN -Value 1
+        New-ItemProperty -Path "$FVE" -Name UseTPMKey -Value 0
+        New-ItemProperty -Path "$FVE" -Name UseTPMKeyPIN -Value 0
+        New-ItemProperty -Path "$FVE" -Name UseEnhancedPin -Value 1
+        New-ItemProperty -Path "$FVE" -Name MinimumPIN -Value 6
+        New-ItemProperty -Path "$FVE" -Name OSRecovery -Value 1
+        New-ItemProperty -Path "$FVE" -Name OSManageDRA -Value 1
+        New-ItemProperty -Path "$FVE" -Name OSRecoveryPassword -Value 1
+        New-ItemProperty -Path "$FVE" -Name OSRecoveryKey -Value 0
+        New-ItemProperty -Path "$FVE" -Name OSHideRecoveryPage -Value 1
+        New-ItemProperty -Path "$FVE" -Name OSActiveDirectoryBackup -Value 1
+        New-ItemProperty -Path "$FVE" -Name OSActiveDirectoryInfoToStore -Value 1
+        New-ItemProperty -Path "$FVE" -Name OSRequireActiveDirectoryBackup -Value 1
+        New-ItemProperty -Path "$FVE" -Name FDVRecovery -Value 1
+        New-ItemProperty -Path "$FVE" -Name FDVManageDRA -Value 1
+        New-ItemProperty -Path "$FVE" -Name FDVRecoveryPassword -Value 1
+        New-ItemProperty -Path "$FVE" -Name FDVRecoveryKey -Value 2
+        New-ItemProperty -Path "$FVE" -Name FDVHideRecoveryPage -Value 1
+        New-ItemProperty -Path "$FVE" -Name FDVActiveDirectoryBackup -Value 1
+        New-ItemProperty -Path "$FVE" -Name FDVActiveDirectoryInfoToStore -Value 1
+        New-ItemProperty -Path "$FVE" -Name FDVRequireActiveDirectoryBackup -Value 1
+        New-ItemProperty -Path "$FVE" -Name OSHardwareEncryption -Value 0
+        New-ItemProperty -Path "$FVE" -Name OSAllowSoftwareEncryptionFailover -Value 0
+        New-ItemProperty -Path "$FVE" -Name OSRestrictHardwareEncryptionAlgorithms -Value 0
+
+        # TPM
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\" -Name TPM -Force
+        $TPM = "HKLM:\SOFTWARE\Policies\Microsoft\TPM\"
+        New-ItemProperty -Path "$TPM" -Name ActiveDirectoryBackup -Value 1
+        New-ItemProperty -Path "$TPM" -Name RequireActiveDirectoryBackup -Value 0
+        
+        # TPM \ BlockedCommands
+        New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\TPM\" -Name BlockedCommands -Force
+        $BlockedCommands = "HKLM:\SOFTWARE\Policies\Microsoft\TPM\BlockedCommands\"
+        New-ItemProperty -Path "$BlockedCommands" -Name IgnoreDefaultList -Value 1
+        New-ItemProperty -Path "$BlockedCommands" -Name IgnoreLocalList -Value 1
 
         # Add protectors and enable BitLocker
         Add-BitLockerKeyProtector -MountPoint "C:" -RecoveryPasswordProtector
@@ -166,6 +214,6 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
 else {
     Clear-Host
     Write-Host "`n"
-    Write-Host "INFO: This is not an HP machine.." -ForegroundColor White -BackgroundColor DarkGreen
+    Write-Host "INFO-Value This is not an HP machine.." -ForegroundColor White -BackgroundColor DarkGreen
     Write-Host "`n"
 }
