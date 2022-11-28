@@ -36,7 +36,7 @@ function Get-OsUpdate {
         Write-Host "`n"
         Write-Host "Checking for updates.." -ForegroundColor White -BackgroundColor DarkGreen
         Write-Host "`n"
-        Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate
+        Install-WindowsUpdate -AcceptAll -IgnoreReboot
     }
 }
 
