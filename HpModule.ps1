@@ -41,7 +41,7 @@ function Get-OsUpdate {
 
 # Disable SED Encryption
 function Disable-Encryption {
-    if ((Get-BitLockerVolume).VolumeStatus -ne "FullyDecrypted") {
+    if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
         Clear-BitLockerAutoUnlock
         Get-BitLockerVolume | Disable-BitLocker
 
@@ -123,7 +123,7 @@ function Enable-Encryption {
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
 
-        While ((Get-BitLockerVolume).VolumeStatus -ne "FullyEncrypted") {
+        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
