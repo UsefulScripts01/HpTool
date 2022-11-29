@@ -54,9 +54,7 @@ function Disable-Encryption {
 }
 
 function Enable-Encryption {
-    $DomainRole = (Get-CimInstance -ClassName Win32_ComputerSystem -Property *).DomainRole
-    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
-    if (($DomainRole -eq "1") -and ($VolumeStatus -eq "FullyDecrypted")) {
+    if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
 
         # FVE
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\" -Name FVE -Force
