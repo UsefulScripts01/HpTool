@@ -45,7 +45,7 @@ function Disable-Encryption {
         Clear-BitLockerAutoUnlock
         Get-BitLockerVolume | Disable-BitLocker
 
-        While ((Get-BitLockerVolume).VolumeStatus -ne "FullyDecrypted") {
+        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
@@ -137,8 +137,7 @@ function Enable-Encryption {
 }
 
 function Get-SelectedDriver {
-    $Folder = Test-Path -Path "~\Desktop\HpDrivers"
-    if ($Folder -match "False") {
+    if (!(Test-Path -Path "~\Desktop\HpDrivers").ToString().Equals('True')) {
         New-Item -ItemType "directory" -Path "~\Desktop\HpDrivers"
     }
     Set-Location -Path "~\Desktop\HpDrivers"
