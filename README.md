@@ -13,7 +13,7 @@ Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManage
 
 ## 3 - HP Drivers
 
-Select one or more drivers to install (hold Ctrl to multiple selection)
+Select one or more drivers to install (hold Ctrl or Shift to select multiple drivers)
 
 <img src="res/SelectDrivers.png" width="50%" height="50%"></img>
 
