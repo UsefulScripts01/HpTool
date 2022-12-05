@@ -11,10 +11,20 @@
 
 
 function Get-HpModule {
-    if (!(Get-Module -ListAvailable).Name.Contains('HPCMSL')) {
+    $Uninstaller = Test-Path -Path "C:\Program Files\WindowsPowerShell\HP.CMSL.UninstallerData\unins000.exe"
+    if ($Uninstaller -eq "True") {
+        Start-Process -FilePath "C:\Program Files\WindowsPowerShell\HP.CMSL.UninstallerData\unins000.exe" -Wait -ArgumentList "/VERYSILENT"
+        Start-Sleep -Seconds 5
         Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
         Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
     }
+    else {
+        Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
+        Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
+    }
+    Write-Host "`n"
+    Write-Host "HP CMSL has been installed.."
+    Write-Host "`n"
 }
 
 function Update-Bios {
