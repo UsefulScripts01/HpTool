@@ -17,10 +17,14 @@ function Get-HpModule {
         Start-Sleep -Seconds 5
         Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
         Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
+        Start-Sleep -Seconds 5
+        Get-Module -ListAvailable -Name "HP*" | Import-Module
     }
     else {
         Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
         Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
+        Start-Sleep -Seconds 5
+        Get-Module -ListAvailable -Name "HP*" | Import-Module
     }
     Write-Host "`n"
     Write-Host "HP CMSL has been installed.."
