@@ -162,9 +162,16 @@ function Enable-Encryption {
 }
 
 
-
 $ProgressPreference = "SilentlyContinue"
 
+# PS Version check
+if ($PSVersionTable.PSEdition.Equals('Core')) {
+    Write-Host "`n"
+    Write-Host "Please use Windows PowerShell.."
+    Write-Host "`n"
+}
+
+# MENU
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
 if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "Microsoft")) {
     $Exit = "N"
