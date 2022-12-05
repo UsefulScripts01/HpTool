@@ -169,13 +169,16 @@ if ($PSVersionTable.PSEdition.Equals('Core')) {
     Write-Host "`n"
     Write-Host "Please use Windows PowerShell.." -BackgroundColor DarkMagenta
     Write-Host "`n"
-    Exit
+    $Exit = "Y"
+}
+else {
+    $Exit = "N"
 }
 
 # MENU
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
 if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "Microsoft")) {
-    $Exit = "N"
+    
     while ($Exit -ne "Y") {
         Write-Host "`n"
         Write-Host "Chose Option:" -ForegroundColor White -BackgroundColor DarkGreen
