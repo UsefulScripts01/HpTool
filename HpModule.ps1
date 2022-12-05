@@ -210,6 +210,6 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
 else {
     Clear-Host
     Write-Host "`n"
-    Write-Host "INFO-Value This is not an HP machine.." -ForegroundColor White -BackgroundColor DarkGreen
+    Write-Host "INFO: This is not an HP machine.." -ForegroundColor White -BackgroundColor DarkGreen
     Write-Host "`n"
 }
