@@ -25,6 +25,7 @@ function Get-HpModule {
     Write-Host "`n"
     Write-Host "HP CMSL has been installed.."
     Write-Host "`n"
+    Start-Sleep -Seconds 5
 }
 
 function Update-Bios {
