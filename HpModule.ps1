@@ -50,10 +50,11 @@ function Get-OsUpdate {
 }
 
 function Get-SelectedDriver {
-    if (!(Test-Path -Path "~\Desktop\HpDrivers").ToString().Equals('True')) {
-        New-Item -ItemType "directory" -Path "~\Desktop\HpDrivers"
+    $HpDrivers = Test-Path -Path "C:\Windows\Temp\HpDrivers"
+    if ($HpDrivers -match "False") {
+        New-Item -ItemType "directory" -Path "C:\Windows\Temp\HpDrivers" -Force
     }
-    Set-Location -Path "~\Desktop\HpDrivers"
+    Set-Location -Path "C:\Windows\Temp\HpDrivers"
 
     $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -OutputMode Multiple
     foreach ($Number in $DriverList.id) {
@@ -63,6 +64,7 @@ function Get-SelectedDriver {
     Write-Host "`n"
     Write-Host "the following drivers have been installed:" -ForegroundColor White -BackgroundColor DarkGreen
     $DriverList | Format-Table -AutoSize
+    Remove-Item -Path "C:\Windows\Temp\HpDrivers" -Recurse -Force
 }
 
 # Disable SED Encryption
