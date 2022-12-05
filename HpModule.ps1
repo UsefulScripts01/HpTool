@@ -167,7 +167,7 @@ $ProgressPreference = "SilentlyContinue"
 # PS Version check
 if ($PSVersionTable.PSEdition.Equals('Core')) {
     Write-Host "`n"
-    Write-Host "INFO: Please use Windows PowerShell.." -BackgroundColor DarkRed
+    Write-Host " INFO: Please use Windows PowerShell.. " -BackgroundColor DarkRed
     Write-Host "`n"
     $Exit = "Y"
 }
@@ -181,7 +181,7 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
     
     while ($Exit -ne "Y") {
         Write-Host "`n"
-        Write-Host "Chose Option:" -ForegroundColor White -BackgroundColor DarkGreen
+        Write-Host " SELECT AN OPTION: " -BackgroundColor DarkGreen
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
         Write-Host "`n"
@@ -231,6 +231,6 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
 else {
     Clear-Host
     Write-Host "`n"
-    Write-Host "INFO: This is not an HP machine.." -BackgroundColor DarkRed
+    Write-Host " INFO: This is not an HP machine.. " -BackgroundColor DarkRed
     Write-Host "`n"
 }
