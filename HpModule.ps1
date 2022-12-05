@@ -53,6 +53,12 @@ function Get-OsUpdate {
 }
 
 function Get-SelectedDriver {
+    $HpModule = (Get-Module -ListAvailable -All -Name "HPCMSL").Name
+    if ($HpModule -notmatch "HPCMSL") {
+        Install-Module -Name PowerShellGet -AllowPrerelease -Force
+        Install-Module -Name HPCMSL -Force -AcceptLicense
+    }
+    
     $HpDrivers = Test-Path -Path "C:\Windows\Temp\HpDrivers"
     if ($HpDrivers -match "False") {
         New-Item -ItemType "directory" -Path "C:\Windows\Temp\HpDrivers" -Force
@@ -201,7 +207,6 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
                 Update-Bios
             }
             "3" {
-                Get-HpModule
                 Get-SelectedDriver
             }
             "6" {
