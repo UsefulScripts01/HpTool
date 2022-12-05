@@ -167,7 +167,7 @@ $ProgressPreference = "SilentlyContinue"
 # PS Version check
 if ($PSVersionTable.PSEdition.Equals('Core')) {
     Write-Host "`n"
-    Write-Host "Please use Windows PowerShell.."
+    Write-Host "Please use Windows PowerShell.." -BackgroundColor DarkMagenta
     Write-Host "`n"
 }
 
