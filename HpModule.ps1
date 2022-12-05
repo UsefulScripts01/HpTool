@@ -11,10 +11,11 @@
 
 
 function Get-HpModule {
-    $HpModule = (Get-Module -ListAvailable -All -Name "HPCMSL").Name
+    $HpModule = (Get-InstalledModule -Name "HPCMSL").Name
     if ($HpModule -notmatch "HPCMSL") {
         Install-Module -Name PowerShellGet -AllowPrerelease -Force
         Install-Module -Name HPCMSL -Force -AcceptLicense
+        Import-Module -Name HPCMSL -Force
     }
     
     <#
@@ -53,12 +54,6 @@ function Get-OsUpdate {
 }
 
 function Get-SelectedDriver {
-    $HpModule = (Get-Module -ListAvailable -All -Name "HPCMSL").Name
-    if ($HpModule -notmatch "HPCMSL") {
-        Install-Module -Name PowerShellGet -AllowPrerelease -Force
-        Install-Module -Name HPCMSL -Force -AcceptLicense
-    }
-    
     $HpDrivers = Test-Path -Path "C:\Windows\Temp\HpDrivers"
     if ($HpDrivers -match "False") {
         New-Item -ItemType "directory" -Path "C:\Windows\Temp\HpDrivers" -Force
@@ -174,6 +169,7 @@ function Enable-Encryption {
 }
 
 
+
 $ProgressPreference = "SilentlyContinue"
 
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
@@ -207,6 +203,7 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
                 Update-Bios
             }
             "3" {
+                Get-HpModule
                 Get-SelectedDriver
             }
             "6" {
