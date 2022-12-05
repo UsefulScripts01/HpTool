@@ -64,7 +64,7 @@ function Get-SelectedDriver {
     Write-Host "`n"
     Write-Host "the following drivers have been installed:" -ForegroundColor White -BackgroundColor DarkGreen
     $DriverList | Format-Table -AutoSize
-    Remove-Item -Path "C:\Windows\Temp\HpDrivers" -Recurse -Force
+    Remove-Item -Path "C:\Windows\Temp\HpDrivers\*" -Recurse -Force
 }
 
 # Disable SED Encryption
