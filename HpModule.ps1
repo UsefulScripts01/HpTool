@@ -53,7 +53,7 @@ function Get-SelectedDriver {
     }
     Set-Location -Path "C:\Windows\Temp\HpDrivers"
 
-    $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -OutputMode Multiple
+    $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -Title "Select driver(s):" -OutputMode Multiple
     foreach ($Number in $DriverList.id) {
         Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
     }
