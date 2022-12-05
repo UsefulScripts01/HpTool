@@ -49,6 +49,22 @@ function Get-OsUpdate {
     }
 }
 
+function Get-SelectedDriver {
+    if (!(Test-Path -Path "~\Desktop\HpDrivers").ToString().Equals('True')) {
+        New-Item -ItemType "directory" -Path "~\Desktop\HpDrivers"
+    }
+    Set-Location -Path "~\Desktop\HpDrivers"
+
+    $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -OutputMode Multiple
+    foreach ($Number in $DriverList.id) {
+        Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
+    }
+
+    Write-Host "`n"
+    Write-Host "the following drivers have been installed:" -ForegroundColor White -BackgroundColor DarkGreen
+    $DriverList | Format-Table -AutoSize
+}
+
 # Disable SED Encryption
 function Disable-Encryption {
     if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
@@ -146,22 +162,6 @@ function Enable-Encryption {
     }
 }
 
-function Get-SelectedDriver {
-    if (!(Test-Path -Path "~\Desktop\HpDrivers").ToString().Equals('True')) {
-        New-Item -ItemType "directory" -Path "~\Desktop\HpDrivers"
-    }
-    Set-Location -Path "~\Desktop\HpDrivers"
-
-    $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -OutputMode Multiple
-    foreach ($Number in $DriverList.id) {
-        Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
-    }
-
-    Write-Host "`n"
-    Write-Host "the following drivers have been installed:" -ForegroundColor White -BackgroundColor DarkGreen
-    $DriverList | Format-Table -AutoSize
-}
-
 
 $progressPreference = "SilentlyContinue"
 
@@ -173,8 +173,8 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
         Write-Host "Chose Option:" -ForegroundColor White -BackgroundColor DarkGreen
         Write-Host "`n"
         Write-Host "1 - Install HP CMSL only"
-        Write-Host "2 - Update BIOS"
         Write-Host "`n"
+        Write-Host "2 - Update BIOS (OVERWRITE)"
         Write-Host "3 - Download amd install HP drivers"
         Write-Host "`n"
         Write-Host "6 - Windows Updates"
