@@ -167,7 +167,7 @@ $ProgressPreference = "SilentlyContinue"
 # PS Version check
 if ($PSVersionTable.PSEdition.Equals('Core')) {
     Write-Host "`n"
-    Write-Host "Please use Windows PowerShell.." -BackgroundColor DarkRed
+    Write-Host "INFO: Please use Windows PowerShell.." -BackgroundColor DarkRed
     Write-Host "`n"
     $Exit = "Y"
 }
@@ -231,6 +231,6 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
 else {
     Clear-Host
     Write-Host "`n"
-    Write-Host "INFO: This is not an HP machine.." -ForegroundColor White -BackgroundColor DarkGreen
+    Write-Host "INFO: This is not an HP machine.." -BackgroundColor DarkRed
     Write-Host "`n"
 }
