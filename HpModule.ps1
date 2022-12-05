@@ -38,7 +38,7 @@ function Get-OsUpdate {
     Install-Module -Name PSWindowsUpdate -Force
     Import-Module -Name PSWindowsUpdate -Force
 
-    Start-Process -FilePath "powershell" -Wait -WindowStyle Maximized {
+    Start-Process -FilePath "powershell" -Wait -WindowStyle Normal {
         Write-Host "`n"
         Write-Host "Checking for updates.." -ForegroundColor White -BackgroundColor DarkGreen
         Write-Host "`n"
