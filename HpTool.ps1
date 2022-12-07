@@ -67,14 +67,16 @@ function Get-SelectedDriver {
 function Get-Applications {
     Clear-Host
 
+    # Install Winget if needed (AppInstaller)
     $WingetVersion = (Get-AppxPackage -AllUsers -Name "Microsoft.DesktopAppInstaller").Version
     if ($WingetVersion -le "1.18") {
+        Write-Host "`n"
+        Write-Host " Getting Microsoft Winget. Please wait.. " -BackgroundColor DarkGreen
+        Write-Host "`n"
 
-        # Install Winget (AppInstaller)
         Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/raw/main/Res/Winget/Winget.zip" -OutFile "C:\Windows\Temp\Winget.zip"
         Expand-Archive -Path "C:\Windows\Temp\Winget.zip" -DestinationPath "C:\Windows\Temp\" -Force
         Get-ChildItem -Path "C:\Windows\Temp" -Recurse | Unblock-File
-        Start-Sleep -Seconds 5
         Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.UI.Xaml.2.7.Appx"
         Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.VCLibs.x64.14.00.Desktop.appx"
         Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
@@ -85,17 +87,18 @@ function Get-Applications {
     # Install Apps with Winget
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
     $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id, Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
-    $AppList = $AppList.Id | Where-Object { "$_" -ne "ID" }
-
+    $AppList = $AppList.Id
+    
     Write-Host "`n"
     Write-Host " Selected applications wil be installed. Please wait.. " -BackgroundColor DarkGreen
     Write-Host "`n"
 
     foreach ($App in $AppList) {
-        winget install --id $App --silent --accept-package-agreements --accept-source-agreements --scope machine
+        winget install --id $App --silent --accept-package-agreements --accept-source-agreements
         Write-Host "`n"
     }
     Get-Process -Name "GoogleDriveFS*" | Stop-Process
+    Get-Process -Name "ShareX*" | Stop-Process
 }
 
 # Windows Updates
