@@ -19,7 +19,7 @@ function Get-HpModule {
     }
     
     Write-Host "`n"
-    Write-Host "HP CMSL has been installed.."
+    Write-Host " HP CMSL has been installed.. "
     Write-Host "`n"
     Start-Sleep -Seconds 5
 }
@@ -40,7 +40,7 @@ function Get-OsUpdate {
 
     Start-Process -FilePath "powershell" -Wait -WindowStyle Normal {
         Write-Host "`n"
-        Write-Host "Checking for updates.." -ForegroundColor White -BackgroundColor DarkGreen
+        Write-Host " Checking for updates.. " -ForegroundColor White -BackgroundColor DarkGreen
         Write-Host "`n"
         Install-WindowsUpdate -AcceptAll -IgnoreReboot
     }
@@ -158,7 +158,7 @@ function Enable-Encryption {
     }
     else {
         Write-Host "`n"
-        Write-Host "This machine is not connected to domain.." -BackgroundColor DarkRed
+        Write-Host " This machine is not connected to the domain or all drives are not decrypted.. " -BackgroundColor DarkRed
         Write-Host "`n"
     }
 }
