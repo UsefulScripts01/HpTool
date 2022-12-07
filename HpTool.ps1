@@ -13,7 +13,7 @@
 function Get-HpModule {
     $HpModule = (Get-Module -ListAvailable -Name "HPCMSL").Name
     if ($HpModule -notmatch "HPCMSL") {
-        Install-Module -Name PowerShellGet -AllowPrerelease -Force
+        Install-Module -Name PowerShellGet -Force
         Install-Module -Name HPCMSL -Force -AcceptLicense
         Import-Module -Name HPCMSL -Force
     }
