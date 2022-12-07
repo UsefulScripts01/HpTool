@@ -75,60 +75,13 @@ function Get-Applications {
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
     $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id,Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
 
+    Write-Host "`n"
+    Write-Host " Selected applications wil be installed. Please wait.. " -BackgroundColor DarkGreen
+    Write-Host "`n"
+
     foreach ($App in $AppList) {
         winget install --id $App --silent --accept-package-agreements --accept-source-agreements
     }
-    
-    <#
-    Write-Host "`n"
-    Write-Host " Tool will install following applications: " -BackgroundColor DarkGreen
-    Write-Host " - Google Chrome "
-    Write-Host " - Google Drive "
-    Write-Host " - 7-zip "
-    Write-Host " - DisplayLink drivers"
-    Write-Host " - PuTTY "
-    Write-Host " - Jre 8 "
-    Write-Host " - Acrobat Reader "
-    Write-Host "`n"
-    Write-Host " This may take a while. Please wait.. " -BackgroundColor DarkGreen
-    Write-Host "`n"
-
-    # Google Chrome
-    Invoke-WebRequest -Uri "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -OutFile "C:\Windows\Temp\Chrome.msi"
-    Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\Chrome.msi /passive"
-
-    # Google Drive
-    Invoke-WebRequest -Uri "https://dl.google.com/drive-file-stream/GoogleDriveSetup.exe" -OutFile "C:\Windows\Temp\GoogleDrive.exe"
-    Start-Process -FilePath "C:\Windows\Temp\GoogleDrive.exe" -Wait -ArgumentList "--silent --desktop_shortcut"
-    Get-Process -Name "*GoogleDriveFS*" | Stop-Process
-
-    # 7-zip
-    Invoke-WebRequest -Uri "https://www.7-zip.org/a/7z2201-x64.msi" -OutFile "C:\Windows\Temp\7z.msi"
-    Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\7z.msi /passive"
-
-    # DisplayLink
-    Invoke-WebRequest -Uri "https://www.synaptics.com/sites/default/files/exe_files/2022-09/DisplayLink%20USB%20Graphics%20Software%20for%20Windows%20with%20Hot%20Desking10.3%20M0-EXE.exe" -OutFile "C:\Windows\Temp\DisplayLink.exe"
-    Start-Process -FilePath "C:\Windows\Temp\DisplayLink.exe" -Wait -ArgumentList "-silent -noreboot"
-
-    # PuTTY
-    Invoke-WebRequest -Uri "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html#:~:text=putty%2D64bit%2D0.78%2Dinstaller.msi" -OutFile "C:\Windows\Temp\PuTTY.msi"
-    Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\PuTTY.msi /passive"
-
-    # Java RE
-    Invoke-WebRequest -Uri "https://javadl.oracle.com/webapps/download/AutoDL?BundleId=246806_424b9da4b48848379167015dcc250d8d" -OutFile "C:\Windows\Temp\jre.exe"
-    Start-Process -FilePath "C:\Windows\Temp\jre.exe" -Wait -ArgumentList "/s"
-
-    # Adobe Reader DC
-    Invoke-WebRequest -Uri "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2100720099/AcroRdrDC2100720099_en_US.exe" -OutFile "C:\Windows\Temp\AdobeReader.exe"
-    Start-Process -FilePath "C:\Windows\Temp\AdobeReader.exe" -Wait -ArgumentList "/spb /rs /msi EULA_ACCEPT=YES"
-
-    # Dialpad Machine-Wide
-    #Invoke-WebRequest -Uri "https://storage.googleapis.com/dialpad_native/DialpadSetup.msi" -OutFile "C:\Windows\Temp\Dialpad.msi"
-    #Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\Dialpad.msi /passive"
-
-    # remove installation files
-    Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Forc
-    #>
 }
 
 
