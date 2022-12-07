@@ -11,12 +11,17 @@
 
 
 function Get-HpModule {
+    Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
+    Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
+    Start-Sleep -Seconds 5
+
+    <#
     $HpModule = (Get-Module -ListAvailable -Name "HPCMSL").Name
     if ($HpModule -notmatch "HPCMSL") {
         Install-Module -Name PowerShellGet -Force
         Install-Module -Name HPCMSL -Force -AcceptLicense
         Import-Module -Name HPCMSL -Force
-    }
+    } #>
     
     Write-Host "`n"
     Write-Host " HP CMSL has been installed.. "
