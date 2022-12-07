@@ -43,19 +43,6 @@ function Update-Bios {
     Get-HPBIOSUpdates -Flash -Offline -Force
 }
 
-function Get-OsUpdate {
-    Install-PackageProvider -Name NuGet -Force
-    Install-Module -Name PSWindowsUpdate -Force
-    Import-Module -Name PSWindowsUpdate -Force
-
-    Start-Process -FilePath "powershell" -Wait -WindowStyle Normal {
-        Write-Host "`n"
-        Write-Host " Checking for updates.. " -BackgroundColor DarkGreen
-        Write-Host "`n"
-        Install-WindowsUpdate -AcceptAll -IgnoreReboot
-    }
-}
-
 function Get-SelectedDriver {
     $HpDrivers = Test-Path -Path "C:\Windows\Temp\HpDrivers"
     if ($HpDrivers -match "False") {
@@ -80,6 +67,60 @@ function Get-SelectedDriver {
     $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
     if ($VolumeStatus -ne "FullyDecrypted") {
         Suspend-BitLocker -MountPoint "C:" -RebootCount 1
+    }
+}
+
+function Get-Applications {
+    # Google Chrome
+    Invoke-WebRequest -Uri "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -OutFile "C:\Windows\Temp\Chrome.msi"
+    Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\Chrome.msi /passive"
+
+    # Google Drive
+    Invoke-WebRequest -Uri "https://dl.google.com/drive-file-stream/GoogleDriveSetup.exe" -OutFile "C:\Windows\Temp\GoogleDrive.exe"
+    Start-Process -FilePath "C:\Windows\Temp\GoogleDrive.exe" -Wait -ArgumentList "--silent --desktop_shortcut"
+    Get-Process -Name "*GoogleDriveFS*" | Stop-Process
+
+    # 7-zip
+    Invoke-WebRequest -Uri "https://www.7-zip.org/a/7z2201-x64.msi" -OutFile "C:\Windows\Temp\7z.msi"
+    Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\7z.msi /passive"
+
+    # DisplayLink
+    Invoke-WebRequest -Uri "https://www.synaptics.com/sites/default/files/exe_files/2022-09/DisplayLink%20USB%20Graphics%20Software%20for%20Windows%20with%20Hot%20Desking10.3%20M0-EXE.exe" -OutFile "C:\Windows\Temp\DisplayLink.exe"
+    Start-Process -FilePath "C:\Windows\Temp\DisplayLink.exe" -Wait -ArgumentList "-silent -noreboot"
+
+    # PuTTY
+    Invoke-WebRequest -Uri "https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html#:~:text=putty%2D64bit%2D0.78%2Dinstaller.msi" -OutFile "C:\Windows\Temp\PuTTY.msi"
+    Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\PuTTY.msi /passive"
+
+    # Java RE
+    Invoke-WebRequest -Uri "https://javadl.oracle.com/webapps/download/AutoDL?BundleId=246806_424b9da4b48848379167015dcc250d8d" -OutFile "C:\Windows\Temp\jre.exe"
+    Start-Process -FilePath "C:\Windows\Temp\jre.exe" -Wait -ArgumentList "/s"
+
+    # Adobe Reader DC
+    Invoke-WebRequest -Uri "https://ardownload2.adobe.com/pub/adobe/reader/win/AcrobatDC/2100720099/AcroRdrDC2100720099_en_US.exe" -OutFile "C:\Windows\Temp\AdobeReader.exe"
+    Start-Process -FilePath "C:\Windows\Temp\AdobeReader.exe" -Wait -ArgumentList "/spb /rs /msi EULA_ACCEPT=YES"
+
+    # Dialpad Machine-Wide
+    #Invoke-WebRequest -Uri "https://storage.googleapis.com/dialpad_native/DialpadSetup.msi" -OutFile "C:\Windows\Temp\Dialpad.msi"
+    #Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\Dialpad.msi /passive"
+
+    # remove installation files
+    Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Forc
+}
+
+
+
+# Windows Updates
+function Get-OsUpdate {
+    Install-PackageProvider -Name NuGet -Force
+    Install-Module -Name PSWindowsUpdate -Force
+    Import-Module -Name PSWindowsUpdate -Force
+
+    Start-Process -FilePath "powershell" -Wait -WindowStyle Normal {
+        Write-Host "`n"
+        Write-Host " Checking for updates.. " -BackgroundColor DarkGreen
+        Write-Host "`n"
+        Install-WindowsUpdate -AcceptAll -IgnoreReboot
     }
 }
 
@@ -274,6 +315,8 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
         Write-Host "2 - Update BIOS (OVERWRITE)"
         Write-Host "3 - Download amd install HP drivers"
         Write-Host "`n"
+        Write-Host "4 - Install Applications"
+        Write-Host "`n"
         Write-Host "6 - Windows Updates"
         Write-Host "`n"
         Write-Host "7 - Disable BitLocker - ALL DRIVES"
@@ -296,6 +339,9 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
             "3" {
                 Get-HpModule
                 Get-SelectedDriver
+            }
+            "3" {
+                Get-Applications
             }
             "6" {
                 Get-OsUpdate
