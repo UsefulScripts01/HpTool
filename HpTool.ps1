@@ -63,12 +63,11 @@ function Get-SelectedDriver {
         New-Item -ItemType "directory" -Path "C:\Windows\Temp\HpDrivers" -Force
     }
     Set-Location -Path "C:\Windows\Temp\HpDrivers"
-
-    Write-Host "`n"
-    Write-Host " Tool will install selected drivers. This may take 10-15min. Please wait.. " -BackgroundColor DarkGreen
-    Write-Host "`n"
-    
+ 
     $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -Title "Select driver(s):" -OutputMode Multiple
+    Write-Host "`n"
+    Write-Host " Tool will install the selected drivers. This may take 10-15 minutes. Please wait.. " -BackgroundColor DarkGreen
+    Write-Host "`n"
     foreach ($Number in $DriverList.id) {
         Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
     }
