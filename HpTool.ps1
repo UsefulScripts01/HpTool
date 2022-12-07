@@ -163,6 +163,51 @@ function Enable-Encryption {
     }
 }
 
+function Enable-SelectEncryption {
+
+    Write-Host "`n"
+    Write-Host " This option will encrypt an additional drive(s) " -BackgroundColor DarkGreen
+    $Letter = Read-Host -Prompt " Enter a drive letter"
+
+    if ((Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
+        $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLockerAutoUnlock
+    
+        Get-BitLockerVolume
+        Write-Host "`n"
+        Write-Host " Encryption in progress on disk $Letter.. " -BackgroundColor DarkGreen
+        Write-Host "`n"
+    }
+    else {
+        Write-Host "`n"
+        Write-Host " Selected drive is not decrypted " -BackgroundColor DarkRed
+        Write-Host " Decryption in progress.. " -BackgroundColor DarkRed
+        Write-Host "`n"
+        Get-BitLockerVolume -MountPoint $Letter | Disable-BitLocker
+        
+        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
+            Clear-Host
+            Get-BitLockerVolume
+            Start-Sleep -second 10
+        }
+        
+        $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLockerAutoUnlock
+    
+        Get-BitLockerVolume
+        Write-Host "`n"
+        Write-Host " Encryption in progress on disk $Letter.. " -BackgroundColor DarkGreen
+        Write-Host "`n"
+
+    }
+}
+
+
+
+
+
 
 $ProgressPreference = "SilentlyContinue"
 
