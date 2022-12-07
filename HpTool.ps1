@@ -67,14 +67,20 @@ function Get-SelectedDriver {
 function Get-Applications {
     Clear-Host
 
-    # Install Winget (AppInstaller)
-    Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.UI.Xaml.2.7.Appx" -OutFile "C:\Windows\Temp\Xaml.Appx"
-    Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.VCLibs.x64.14.00.Desktop.appx" -OutFile "C:\Windows\Temp\VCLibs.appx"
-    Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\Windows\Temp\DesktopAppInstaller.msixbundle"
-    Get-ChildItem -Path "C:\Windows\Temp" -Recurse | Unblock-File
-    Add-AppxPackage -Path "C:\Windows\Temp\Xaml.Appx"
-    Add-AppxPackage -Path "C:\Windows\Temp\VCLibs.appx"
-    Add-AppxPackage -Path "C:\Windows\Temp\DesktopAppInstaller.msixbundle"
+    $WingetVersion = (Get-AppxPackage -AllUsers -Name "Microsoft.DesktopAppInstaller").Version
+    if ($WingetVersion -le "1.18") {
+
+        # Install Winget (AppInstaller)
+        Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/raw/main/Res/Winget/Winget.zip" -OutFile "C:\Windows\Temp\Winget.zip"
+        Expand-Archive -Path "C:\Windows\Temp\Winget.zip" -DestinationPath "C:\Windows\Temp\" -Force
+        Get-ChildItem -Path "C:\Windows\Temp" -Recurse | Unblock-File
+
+        Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.UI.Xaml.2.7.Appx"
+        Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.VCLibs.x64.14.00.Desktop.appx"
+        Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+        Start-Sleep -Seconds 5
+        Get-ChildItem -Path C:\Windows\Temp -Include ("*.appx", "*.msixbundle", "*.zip") -Recurse | Remove-Item -Force
+    }
 
     # Install Apps with Winget
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
@@ -89,6 +95,7 @@ function Get-Applications {
         winget install --id $App --silent --accept-package-agreements --accept-source-agreements --scope machine
         Write-Host "`n"
     }
+    Get-Process -Name "GoogleDriveFS*" | Stop-Process
 }
 
 # Windows Updates
