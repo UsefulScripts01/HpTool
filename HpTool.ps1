@@ -170,8 +170,6 @@ function Enable-SelectEncryption {
         Write-Host "`n"
         Write-Host " Drive C: is not encrypted! " -BackgroundColor DarkRed
         Write-Host "`n"
-        $Exit = "Y"
-        Write-Host $Exit -ForegroundColor Black
     }
 
     Write-Host "`n"
