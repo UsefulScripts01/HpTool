@@ -318,7 +318,7 @@ else {
 
 # MENU
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
-if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
+if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "Microsoft")) {
     
     while ($Exit -ne "Y") {
         Write-Host "`n"
