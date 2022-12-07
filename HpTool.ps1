@@ -152,6 +152,8 @@ function Enable-Encryption {
         Write-Host "`n"
         Write-Host " Encryption in progress.. " -BackgroundColor DarkGreen
         Write-Host "`n"
+        Write-Host "BitLocker PIN: 112233 " -BackgroundColor DarkGreen
+        Write-Host "`n"
         
     }
     else {
