@@ -239,6 +239,7 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
         Write-Host "`n"
         Write-Host "7 - Disable BitLocker - ALL DRIVES"
         Write-Host "8 - Enable BitLocker - ALL DRIVES / NO RESTART"
+        Write-Host "9 - Enable BitLocker - SELECTED DRIVE / NO RESTART"
         Write-Host "`n"
         Write-Host "R - Restart computer"
         Write-Host "Q - Exit"
@@ -265,6 +266,9 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard")) {
             }
             "8" {
                 Enable-Encryption
+            }
+            "9" {
+                Enable-SelectEncryption
             }
             "R" {
                 Restart-Computer -Force
