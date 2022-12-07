@@ -71,6 +71,20 @@ function Get-SelectedDriver {
 }
 
 function Get-Applications {
+    Clear-Host
+    Write-Host "`n"
+    Write-Host " Tool will install following applications: " -BackgroundColor DarkGreen
+    Write-Host " - Google Chrome "
+    Write-Host " - Google Drive "
+    Write-Host " - 7-zip "
+    Write-Host " - DisplayLink drivers"
+    Write-Host " - PuTTY "
+    Write-Host " - Jre 8 "
+    Write-Host " - Acrobat Reader "
+    Write-Host "`n"
+    Write-Host " This may take a while. Please wait.. " -BackgroundColor DarkGreen
+    Write-Host "`n"
+
     # Google Chrome
     Invoke-WebRequest -Uri "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi" -OutFile "C:\Windows\Temp\Chrome.msi"
     Start-Process -FilePath "msiexec" -Wait -ArgumentList "/i C:\Windows\Temp\Chrome.msi /passive"
