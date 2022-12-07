@@ -72,7 +72,7 @@ function Get-SelectedDriver {
 
 function Get-Applications {
     Clear-Host
-    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
     $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id,Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
 
     foreach ($App in $AppList) {
