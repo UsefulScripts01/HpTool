@@ -354,7 +354,7 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
                 Get-HpModule
                 Get-SelectedDriver
             }
-            "3" {
+            "4" {
                 Get-Applications
             }
             "6" {
