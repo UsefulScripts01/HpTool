@@ -71,7 +71,7 @@ function Get-Applications {
     Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.VCLibs.x64.14.00.Desktop.appx" -OutFile "C:\Windows\Temp\VCLibs.appx"
     Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\Windows\Temp\DesktopAppInstaller.msixbundle"
     Get-ChildItem -Path "C:\Windows\Temp" -Recurse | Unblock-File
-    Add-AppxPackage -Path "C:\Windows\Temp\Xaml.2.7.Appx"
+    Add-AppxPackage -Path "C:\Windows\Temp\Xaml.Appx"
     Add-AppxPackage -Path "C:\Windows\Temp\VCLibs.appx"
     Add-AppxPackage -Path "C:\Windows\Temp\DesktopAppInstaller.msixbundle"
 
