@@ -67,6 +67,7 @@ function Get-SelectedDriver {
 function Get-Applications {
     Clear-Host
 
+    # Install Winget (AppInstaller)
     Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.UI.Xaml.2.7.Appx" -OutFile "C:\Windows\Temp\Xaml.Appx"
     Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.VCLibs.x64.14.00.Desktop.appx" -OutFile "C:\Windows\Temp\VCLibs.appx"
     Invoke-WebRequest -Uri "https://github.com/UsefulScripts01/HpTool/blob/main/Res/Winget/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\Windows\Temp\DesktopAppInstaller.msixbundle"
@@ -75,6 +76,7 @@ function Get-Applications {
     Add-AppxPackage -Path "C:\Windows\Temp\VCLibs.appx"
     Add-AppxPackage -Path "C:\Windows\Temp\DesktopAppInstaller.msixbundle"
 
+    # Install Apps with Winget
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
     $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id, Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
     $AppList = $AppList.Id | Where-Object { "$_" -ne "ID" }
@@ -84,7 +86,7 @@ function Get-Applications {
     Write-Host "`n"
 
     foreach ($App in $AppList) {
-        winget install --id $App --silent --accept-package-agreements --accept-source-agreements --ignore-versions
+        winget install --id $App --silent --accept-package-agreements --accept-source-agreements --scope machine
         Write-Host "`n"
     }
 }
