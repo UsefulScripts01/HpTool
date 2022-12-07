@@ -5,12 +5,6 @@
 
     .NOTES
 
-    $Spin = "/-\|"
-    while ($true) {
-        Write-Host "`b$($spin.Substring($i++%$spin.Length)[0])" -nonewline
-        Start-Sleep -Seconds 0.5
-    }
-
     .LINK
         https://github.com/UsefulScripts01/HpModule
 #>
@@ -74,7 +68,7 @@ function Get-Applications {
     Clear-Host
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
     $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id, Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
-    $AppList = $AppList.Id | Where-Object { $_ -ne "ID" }
+    $AppList = $AppList.Id | Where-Object { "$_" -ne "ID" }
 
     Write-Host "`n"
     Write-Host " Selected applications wil be installed. Please wait.. " -BackgroundColor DarkGreen
