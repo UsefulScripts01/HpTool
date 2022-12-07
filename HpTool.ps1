@@ -5,6 +5,12 @@
 
     .NOTES
 
+    $Spin = "/-\|"
+    while ($true) {
+        Write-Host "`b$($spin.Substring($i++%$spin.Length)[0])" -nonewline
+        Start-Sleep -Seconds 0.5
+    }    
+
     .LINK
         https://github.com/UsefulScripts01/HpModule
 #>
@@ -26,13 +32,6 @@ function Get-HpModule {
         Write-Host " HP CMSL is already installed.. " -BackgroundColor DarkGreen
         Write-Host "`n"
     }
-
-    <# $HpModule = (Get-Module -ListAvailable -Name "HPCMSL").Name
-    if ($HpModule -notmatch "HPCMSL") {
-        Install-Module -Name PowerShellGet -Force
-        Install-Module -Name HPCMSL -Force -AcceptLicense
-        Import-Module -Name HPCMSL -Force
-    } #>
 }
 
 function Update-Bios {
@@ -68,6 +67,7 @@ function Get-SelectedDriver {
     Write-Host "`n"
     Write-Host " Tool will install the selected drivers. This may take 10-15 minutes. Please wait.. " -BackgroundColor DarkGreen
     Write-Host "`n"
+
     foreach ($Number in $DriverList.id) {
         Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
     }
@@ -224,6 +224,23 @@ function Enable-SelectEncryption {
 
     }
 }
+
+<# SNIPPETS
+    $HpModule = (Get-Module -ListAvailable -Name "HPCMSL").Name
+    if ($HpModule -notmatch "HPCMSL") {
+        Install-Module -Name PowerShellGet -Force
+        Install-Module -Name HPCMSL -Force -AcceptLicense
+        Import-Module -Name HPCMSL -Force
+    }
+
+    $Spin = "/-\|"
+    while ($true) {
+        Write-Host "`b$($spin.Substring($i++%$spin.Length)[0])" -nonewline
+        Start-Sleep -Seconds 0.5
+    }
+#>
+
+
 
 
 $ProgressPreference = "SilentlyContinue"
