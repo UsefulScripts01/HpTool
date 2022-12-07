@@ -284,6 +284,20 @@ function Enable-SelectEncryption {
         Write-Host "`b$($spin.Substring($i++%$spin.Length)[0])" -nonewline
         Start-Sleep -Seconds 0.5
     }
+
+    function Get-AppsViaWinget {
+    $DeployRoot = (Get-SmbMapping).RemotePath
+    Copy-Item -Path "$DeployRoot\Applications\*" -Destination "C:\Windows\Temp" -Force
+    Get-ChildItem -Path "C:\Windows\Temp" -Recurse | Unblock-File
+    Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.UI.Xaml.2.7.Appx"
+    Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.VCLibs.x64.14.00.Desktop.appx"
+    Add-AppxPackage -Path "C:\Windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+
+    winget import --import-file "C:\Windows\Temp\WingetApps.json" --ignore-versions --accept-package-agreements --accept-source-agreements
+
+    Get-Process -Name "GoogleDriveFS*" | Stop-Process
+    Get-ChildItem -Path C:\Windows\Temp -Include ("*.appx", "*.msixbundle", "*.json") -Recurse | Remove-Item -Force
+}
 #>
 
 
