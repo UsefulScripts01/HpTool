@@ -25,7 +25,7 @@ function Get-HpModule {
     } #>
     
     Write-Host "`n"
-    Write-Host " HP CMSL has been installed.. "
+    Write-Host " HP CMSL has been installed.. " -BackgroundColor DarkGreen
     Write-Host "`n"
     Start-Sleep -Seconds 5
 }
@@ -46,7 +46,7 @@ function Get-OsUpdate {
 
     Start-Process -FilePath "powershell" -Wait -WindowStyle Normal {
         Write-Host "`n"
-        Write-Host " Checking for updates.. " -ForegroundColor White -BackgroundColor DarkGreen
+        Write-Host " Checking for updates.. " -BackgroundColor DarkGreen
         Write-Host "`n"
         Install-WindowsUpdate -AcceptAll -IgnoreReboot
     }
