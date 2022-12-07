@@ -75,7 +75,12 @@ function Get-SelectedDriver {
     Write-Host "`n"
     Write-Host " The following drivers have been installed: " -ForegroundColor White -BackgroundColor DarkGreen
     $DriverList | Format-Table -AutoSize
+
     Remove-Item -Path "C:\Windows\Temp\HpDrivers\*" -Recurse -Force
+    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
+    if ($VolumeStatus -ne "FullyDecrypted") {
+        Suspend-BitLocker -MountPoint "C:" -RebootCount 1
+    }
 }
 
 # Disable SED Encryption
