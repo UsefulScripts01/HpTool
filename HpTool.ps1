@@ -171,8 +171,8 @@ function Enable-SelectEncryption {
 
     if ((Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLockerAutoUnlock
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLockerAutoUnlock
     
         Get-BitLockerVolume
         Write-Host "`n"
@@ -193,8 +193,8 @@ function Enable-SelectEncryption {
         }
         
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter | Enable-BitLockerAutoUnlock
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLockerAutoUnlock
     
         Get-BitLockerVolume
         Write-Host "`n"
