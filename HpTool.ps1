@@ -72,6 +72,14 @@ function Get-SelectedDriver {
 
 function Get-Applications {
     Clear-Host
+    Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
+    $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id,Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
+
+    foreach ($App in $AppList) {
+        winget install --id $App --silent --accept-package-agreements --accept-package-agreements
+    }
+    
+    <#
     Write-Host "`n"
     Write-Host " Tool will install following applications: " -BackgroundColor DarkGreen
     Write-Host " - Google Chrome "
@@ -120,6 +128,7 @@ function Get-Applications {
 
     # remove installation files
     Get-ChildItem -Path C:\Windows\Temp -Include ("*.msi", "*.exe") -Recurse | Remove-Item -Forc
+    #>
 }
 
 
