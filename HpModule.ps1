@@ -81,6 +81,10 @@ function Disable-Encryption {
 function Enable-Encryption {
     if ((Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
 
+        # Change sleep and monitor timeout
+        powercfg -change -monitor-timeout-ac 0
+        powercfg -change -standby-timeout-ac 0
+
         # FVE
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\" -Name FVE -Force
         $FVE = "HKLM:\SOFTWARE\Policies\Microsoft\FVE\"
@@ -148,11 +152,14 @@ function Enable-Encryption {
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
 
-        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
+        While ((Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyEncrypted")) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
         }
+
+        # setting default power plan
+        powercfg -restoredefaultschemes
     }
     else {
         Write-Host "`n"
