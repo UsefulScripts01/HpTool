@@ -164,6 +164,13 @@ function Enable-Encryption {
 }
 
 function Enable-SelectEncryption {
+    Clear-Host
+    
+    if (!(Get-BitLockerVolume -MountPoint "C:").VolumeStatus.ToString().Equals("FullyEncrypted")) {
+        Write-Host "`n"
+        Write-Host " Drive C: is not encrypted! " -BackgroundColor DarkRed
+        Write-Host "`n"
+    }
 
     Write-Host "`n"
     Write-Host " This option will encrypt an additional drive(s) " -BackgroundColor DarkGreen
@@ -203,10 +210,6 @@ function Enable-SelectEncryption {
 
     }
 }
-
-
-
-
 
 
 $ProgressPreference = "SilentlyContinue"
