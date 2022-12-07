@@ -171,8 +171,8 @@ function Enable-SelectEncryption {
 
     if ((Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLockerAutoUnlock
+        Get-BitLockerVolume -MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+        Get-BitLockerVolume -MountPoint $Letter | Enable-BitLockerAutoUnlock
     
         Get-BitLockerVolume
         Write-Host "`n"
@@ -186,15 +186,15 @@ function Enable-SelectEncryption {
         Write-Host "`n"
         Get-BitLockerVolume -MountPoint $Letter | Disable-BitLocker
         
-        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
+        While (!(Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
         }
         
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
-        Get-BitLockerVolume | Where-Object -Property MountPoint $Letter.Split(':')[0] | Enable-BitLockerAutoUnlock
+        Get-BitLockerVolume -MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
+        Get-BitLockerVolume -MountPoint $Letter | Enable-BitLockerAutoUnlock
     
         Get-BitLockerVolume
         Write-Host "`n"
