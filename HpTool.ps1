@@ -9,7 +9,7 @@
     while ($true) {
         Write-Host "`b$($spin.Substring($i++%$spin.Length)[0])" -nonewline
         Start-Sleep -Seconds 0.5
-    }    
+    }
 
     .LINK
         https://github.com/UsefulScripts01/HpModule
@@ -49,7 +49,7 @@ function Get-SelectedDriver {
         New-Item -ItemType "directory" -Path "C:\Windows\Temp\HpDrivers" -Force
     }
     Set-Location -Path "C:\Windows\Temp\HpDrivers"
- 
+
     $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -Title "Select driver(s):" -OutputMode Multiple
     Write-Host "`n"
     Write-Host " Tool will install the selected drivers. This may take 10-15 minutes. Please wait.. " -BackgroundColor DarkGreen
@@ -73,7 +73,7 @@ function Get-SelectedDriver {
 function Get-Applications {
     Clear-Host
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
-    $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id,Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
+    $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id, Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
     $AppList = $AppList.Id | Where-Object { $_ -ne "ID" }
 
     Write-Host "`n"
@@ -84,8 +84,6 @@ function Get-Applications {
         winget install --id $App --silent --accept-package-agreements --accept-source-agreements
     }
 }
-
-
 
 # Windows Updates
 function Get-OsUpdate {
@@ -160,7 +158,7 @@ function Enable-Encryption {
         $TPM = "HKLM:\SOFTWARE\Policies\Microsoft\TPM\"
         New-ItemProperty -Path "$TPM" -Name ActiveDirectoryBackup -Value 1
         New-ItemProperty -Path "$TPM" -Name RequireActiveDirectoryBackup -Value 0
-        
+
         # TPM \ BlockedCommands
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\TPM\" -Name BlockedCommands -Force
         $BlockedCommands = "HKLM:\SOFTWARE\Policies\Microsoft\TPM\BlockedCommands\"
@@ -191,7 +189,7 @@ function Enable-Encryption {
         Write-Host "`n"
         Write-Host "BitLocker PIN: 112233 " -BackgroundColor DarkGreen
         Write-Host "`n"
-        
+
     }
     else {
         Write-Host "`n"
@@ -202,7 +200,7 @@ function Enable-Encryption {
 
 function Enable-SelectEncryption {
     Clear-Host
-    
+
     if (!(Get-BitLockerVolume -MountPoint "C:").VolumeStatus.ToString().Equals("FullyEncrypted")) {
         Write-Host "`n"
         Write-Host " Drive C: is not encrypted! " -BackgroundColor DarkRed
@@ -217,7 +215,7 @@ function Enable-SelectEncryption {
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLockerAutoUnlock
-    
+
         Get-BitLockerVolume
         Write-Host "`n"
         Write-Host " Encryption in progress on disk $Letter.. " -BackgroundColor DarkGreen
@@ -229,17 +227,17 @@ function Enable-SelectEncryption {
         Write-Host " Decryption in progress.. " -BackgroundColor DarkRed
         Write-Host "`n"
         Get-BitLockerVolume -MountPoint $Letter | Disable-BitLocker
-        
+
         While (!(Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
         }
-        
+
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLockerAutoUnlock
-    
+
         Get-BitLockerVolume
         Write-Host "`n"
         Write-Host " Encryption in progress on disk $Letter.. " -BackgroundColor DarkGreen
@@ -296,7 +294,7 @@ else {
 # MENU
 $Bios = (Get-CimInstance -ClassName win32_computersystem).Manufacturer
 if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "Microsoft")) {
-    
+
     while ($Exit -ne "Y") {
         Write-Host "`n"
         Write-Host " SELECT AN OPTION: " -BackgroundColor DarkGreen
