@@ -152,7 +152,7 @@ function Enable-Encryption {
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume | Where-Object -Property MountPoint -ne "C:" | Enable-BitLockerAutoUnlock
 
-        While ((Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyEncrypted")) {
+        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyEncrypted")) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
