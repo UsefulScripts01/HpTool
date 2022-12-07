@@ -76,7 +76,7 @@ function Get-Applications {
     $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id,Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
 
     foreach ($App in $AppList) {
-        winget install --id $App --silent --accept-package-agreements --accept-package-agreements
+        winget install --id $App --silent --accept-package-agreements --accept-source-agreements
     }
     
     <#
