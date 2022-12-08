@@ -281,6 +281,7 @@ function Enable-SelectEncryption {
 
 
 $ProgressPreference = "SilentlyContinue"
+Clear-Host
 
 # PS Version check
 if ($PSVersionTable.PSEdition.Equals('Core')) {
