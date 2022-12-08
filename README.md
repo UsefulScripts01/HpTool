@@ -1,7 +1,12 @@
+# HpTool
+
+A set of simple HP device management tools.
+
+
 ## Description
 More info: https://developers.hp.com/hp-client-management/doc/client-management-script-library
 
-# Usage
+## Usage
 
 Copy the code from the area below and paste it into PowerShell Admin (or Windows Terminal)
 
