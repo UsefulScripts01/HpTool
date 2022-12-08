@@ -65,8 +65,6 @@ function Get-SelectedDriver {
 }
 
 function Get-Applications {
-    Clear-Host
-
     # Install Winget if needed (AppInstaller)
     $WingetVersion = (Get-AppxPackage -AllUsers -Name "Microsoft.DesktopAppInstaller").Version
     if ($WingetVersion -le "1.18") {
