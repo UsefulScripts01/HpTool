@@ -3,7 +3,7 @@
     A set of simple HP device management tools.
 
     .DESCRIPTION
-    Scripts contains a few simple functions (options) to helt IT guys with common tasks.
+    Scripts contain a few simple functions (options) that help IT professionals perform common tasks.
 
     .NOTES
 
