@@ -9,9 +9,8 @@
         https://github.com/UsefulScripts01/HpModule
 #>
 
-
+# Install HP CMSL module
 function Get-HpModule {
-
     $HpPath = Test-Path -Path "C:\Program Files\WindowsPowerShell\Modules\HPCMSL"
     if ($HpPath -match "False") {
         Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
@@ -28,6 +27,7 @@ function Get-HpModule {
     }
 }
 
+# Update Bios
 function Update-Bios {
     $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
     if ($VolumeStatus -ne "FullyDecrypted") {
@@ -37,18 +37,22 @@ function Update-Bios {
     Get-HPBIOSUpdates -Flash -Offline -Force
 }
 
+# Install selected drivers
 function Get-SelectedDriver {
+    # make location for downloaded drivers
     $HpDrivers = Test-Path -Path "C:\Windows\Temp\HpDrivers"
     if ($HpDrivers -match "False") {
         New-Item -ItemType "directory" -Path "C:\Windows\Temp\HpDrivers" -Force
     }
     Set-Location -Path "C:\Windows\Temp\HpDrivers"
 
+    # check available drivers
     $DriverList = Get-SoftpaqList -Category BIOS, Driver | Select-Object -Property id, name, version, Size, ReleaseDate | Out-GridView -Title "Select driver(s):" -OutputMode Multiple
     Write-Host "`n"
     Write-Host " Tool will install the selected drivers. This may take 10-15 minutes. Please wait.. " -BackgroundColor DarkGreen
     Write-Host "`n"
 
+    # download and install selected drivers
     foreach ($Number in $DriverList.id) {
         Get-Softpaq -Number $Number -Overwrite no -Action silentinstall -KeepInvalidSigned
     }
@@ -57,13 +61,17 @@ function Get-SelectedDriver {
     Write-Host " The following drivers have been installed: " -ForegroundColor White -BackgroundColor DarkGreen
     $DriverList | Format-Table -AutoSize
 
+    # remove installation files
     Remove-Item -Path "C:\Windows\Temp\HpDrivers\*" -Recurse -Force
     $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
+
+    # disable BitLocker pin for one restart
     if ($VolumeStatus -ne "FullyDecrypted") {
         Suspend-BitLocker -MountPoint "C:" -RebootCount 1
     }
 }
 
+# Install applications
 function Get-Applications {
     # Install Winget if needed (AppInstaller)
     $WingetVersion = (Get-AppxPackage -AllUsers -Name "Microsoft.DesktopAppInstaller").Version
@@ -86,25 +94,25 @@ function Get-Applications {
     Invoke-WebRequest -Uri "https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/Res/Winget/AppList.csv" -OutFile "C:\Windows\Temp\AppList.csv"
     $AppList = Import-Csv -Path "C:\Windows\Temp\AppList.csv" -Header Id, Name | Out-GridView -Title "Select app(s):" -OutputMode Multiple
     $AppList = $AppList.Id
-    
     Write-Host "`n"
     Write-Host " Selected applications wil be installed. Please wait.. " -BackgroundColor DarkGreen
     Write-Host "`n"
-
     foreach ($App in $AppList) {
         winget install --id $App --silent --accept-package-agreements --accept-source-agreements
         Write-Host "`n"
-    }
+    } 
     Get-Process -Name "GoogleDriveFS*" | Stop-Process
     Get-Process -Name "ShareX*" | Stop-Process
 }
 
 # Windows Updates
 function Get-OsUpdate {
+    # install PSWindowsUpdate module
     Install-PackageProvider -Name NuGet -Force
     Install-Module -Name PSWindowsUpdate -Force
     Import-Module -Name PSWindowsUpdate -Force
 
+    # windows updates
     Start-Process -FilePath "powershell" -Wait -WindowStyle Normal {
         Write-Host "`n"
         Write-Host " Checking for updates.. " -BackgroundColor DarkGreen
@@ -115,10 +123,12 @@ function Get-OsUpdate {
 
 # Disable SED Encryption
 function Disable-Encryption {
+    # dosable BitLocker
     if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
         Clear-BitLockerAutoUnlock
         Get-BitLockerVolume | Disable-BitLocker
 
+        # wait for end of the process
         While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
             Clear-Host
             Get-BitLockerVolume
@@ -127,6 +137,7 @@ function Disable-Encryption {
     }
 }
 
+# Enable BitLocker
 function Enable-Encryption {
     if ((Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
 
@@ -212,19 +223,23 @@ function Enable-Encryption {
     }
 }
 
+# Enable BitLocker on selected drive
 function Enable-SelectEncryption {
     Clear-Host
 
+    # check if drive C is encrypted
     if (!(Get-BitLockerVolume -MountPoint "C:").VolumeStatus.ToString().Equals("FullyEncrypted")) {
         Write-Host "`n"
         Write-Host " Drive C: is not encrypted! " -BackgroundColor DarkRed
         Write-Host "`n"
     }
 
+    # selct drive
     Write-Host "`n"
     Write-Host " This option will encrypt an additional drive(s) " -BackgroundColor DarkGreen
     $Letter = Read-Host -Prompt " Enter a drive letter"
 
+    # check if the selected drive is decrypted. Disable BitLocker if necessary
     if ((Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
@@ -242,12 +257,14 @@ function Enable-SelectEncryption {
         Write-Host "`n"
         Get-BitLockerVolume -MountPoint $Letter | Disable-BitLocker
 
+        # wait for end of the process
         While (!(Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
         }
 
+        # Get BitLocker recovery pin and store it in the domain
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLockerAutoUnlock
@@ -281,7 +298,7 @@ function Enable-SelectEncryption {
 $ProgressPreference = "SilentlyContinue"
 Clear-Host
 
-# PS Version check
+# Check PowerShell version
 if ($PSVersionTable.PSEdition.Equals('Core')) {
     Write-Host "`n"
     Write-Host " INFO: Please use Windows PowerShell.. " -BackgroundColor DarkRed
