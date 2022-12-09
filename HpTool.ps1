@@ -1,12 +1,14 @@
 <#
     .SYNOPSIS
+    A set of simple HP device management tools.
 
     .DESCRIPTION
+    Scripts contains a few simple functions (options) to helt IT guys with common tasks.
 
     .NOTES
 
     .LINK
-        https://github.com/UsefulScripts01/HpModule
+        https://github.com/UsefulScripts01/HpTool
 #>
 
 # Install HP CMSL module
