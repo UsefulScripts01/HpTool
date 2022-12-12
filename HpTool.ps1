@@ -279,6 +279,17 @@ function Enable-SelectEncryption {
     }
 }
 
+# Save error log
+function Save-ErrorLog {
+    if (!$Error.Count.Equals(0)) {
+        $DateTime = Get-Date -Format "dd.MM.yyyy HH:mm"
+        foreach ($Entry in $Error) {
+            Add-Content -Value "$DateTime - $env:computername - $Entry" -Path "~\Desktop\ErrorLog.log" -Force
+        }
+        $Error.Clear()
+    }
+}
+
 <# SNIPPETS
     $HpModule = (Get-Module -ListAvailable -Name "HPCMSL").Name
     if ($HpModule -notmatch "HPCMSL") {
@@ -335,34 +346,42 @@ if (($Bios -match "HP") -or ($Bios -match "Hewlett-Packard") -or ($Bios -match "
         Write-Host "R - Restart computer"
         Write-Host "Q - Exit"
         Write-Host "`n"
-
+        
         $SelectOption = Read-Host -Prompt "Select Option"
         Switch ($SelectOption) {
             "1" {
                 Get-HpModule
+                Save-ErrorLog
             }
             "2" {
                 Get-HpModule
                 Update-Bios
+                Save-ErrorLog
             }
             "3" {
                 Get-HpModule
                 Get-SelectedDriver
+                Save-ErrorLog
             }
             "4" {
                 Get-Applications
+                Save-ErrorLog
             }
             "6" {
                 Get-OsUpdate
+                Save-ErrorLog
             }
             "7" {
                 Disable-Encryption
+                Save-ErrorLog
             }
             "8" {
                 Enable-Encryption
+                Save-ErrorLog
             }
             "9" {
                 Enable-SelectEncryption
+                Save-ErrorLog
             }
             "R" {
                 Restart-Computer -Force
