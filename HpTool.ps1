@@ -311,6 +311,8 @@ function Save-ErrorLog {
         Write-Host "`b$($spin.Substring($i++%$spin.Length)[0])" -nonewline
         Start-Sleep -Seconds 0.5
     }
+
+    #test
 #>
 
 
