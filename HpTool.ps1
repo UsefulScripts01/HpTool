@@ -13,8 +13,8 @@
 
 # Install HP CMSL module
 function Get-HpModule {
-    $HpPath = Test-Path -Path "C:\Program Files\WindowsPowerShell\Modules\HPCMSL"
-    if ($HpPath -match "False") {
+    $AppList = (Get-CimInstance -ClassName Win32_InstalledWin32Program).Name
+    if ($AppList -notcontains "HP Client Management Script Library") {
         Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
         Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
         Start-Sleep -Seconds 5
