@@ -13,8 +13,7 @@
 
 # Install HP CMSL module
 function Get-HpModule {
-    $AppList = (Get-CimInstance -ClassName Win32_InstalledWin32Program).Name
-    if ($AppList -notcontains "HP Client Management Script Library") {
+    if (!(Get-CimInstance -ClassName Win32_InstalledWin32Program).Name.Contains('HP Client Management Script Library')) {
         Invoke-WebRequest -Uri "https://hpia.hpcloud.hp.com/downloads/cmsl/hp-cmsl-1.6.8.exe" -OutFile "C:\Windows\Temp\hpcmsl.exe"
         Start-Process -FilePath "C:\Windows\Temp\hpcmsl.exe" -Wait -ArgumentList "/VERYSILENT"
         Start-Sleep -Seconds 5
@@ -31,8 +30,7 @@ function Get-HpModule {
 
 # Update Bios
 function Update-Bios {
-    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
-    if ($VolumeStatus -ne "FullyDecrypted") {
+    if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals('FullyDecrypted')) {
         Suspend-BitLocker -MountPoint "C:" -RebootCount 1
     }
     Get-HPBIOSUpdates
@@ -65,10 +63,9 @@ function Get-SelectedDriver {
 
     # remove installation files
     Remove-Item -Path "C:\Windows\Temp\HpDrivers\*" -Recurse -Force
-    $VolumeStatus = (Get-BitLockerVolume).VolumeStatus
 
     # disable BitLocker pin for one restart
-    if ($VolumeStatus -ne "FullyDecrypted") {
+    if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals('FullyDecrypted')) {
         Suspend-BitLocker -MountPoint "C:" -RebootCount 1
     }
 }
@@ -126,12 +123,12 @@ function Get-OsUpdate {
 # Disable SED Encryption
 function Disable-Encryption {
     # dosable BitLocker
-    if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
+    if (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals('FullyDecrypted')) {
         Clear-BitLockerAutoUnlock
         Get-BitLockerVolume | Disable-BitLocker
 
         # wait for end of the process
-        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
+        While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals('FullyDecrypted')) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
@@ -141,7 +138,7 @@ function Disable-Encryption {
 
 # Enable BitLocker
 function Enable-Encryption {
-    if ((Get-BitLockerVolume).VolumeStatus[0].ToString().Equals("FullyDecrypted")) {
+    if ((Get-BitLockerVolume).VolumeStatus[0].ToString().Equals('FullyDecrypted')) {
 
         # FVE
         New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\" -Name FVE -Force
@@ -230,7 +227,7 @@ function Enable-SelectEncryption {
     Clear-Host
 
     # check if drive C is encrypted
-    if (!(Get-BitLockerVolume -MountPoint "C:").VolumeStatus.ToString().Equals("FullyEncrypted")) {
+    if (!(Get-BitLockerVolume -MountPoint "C:").VolumeStatus.ToString().Equals('FullyEncrypted')) {
         Write-Host "`n"
         Write-Host " Drive C: is not encrypted! " -BackgroundColor DarkRed
         Write-Host "`n"
@@ -242,7 +239,7 @@ function Enable-SelectEncryption {
     $Letter = Read-Host -Prompt " Enter a drive letter"
 
     # check if the selected drive is decrypted. Disable BitLocker if necessary
-    if ((Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
+    if ((Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals('FullyDecrypted')) {
         $RecoveryPass = (Get-BitLockerVolume -MountPoint "C:").KeyProtector.RecoveryPassword | Where-Object { $_ }
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLocker -EncryptionMethod Aes256 -SkipHardwareTest -RecoveryPasswordProtector -RecoveryPassword $RecoveryPass
         Get-BitLockerVolume -MountPoint $Letter | Enable-BitLockerAutoUnlock
@@ -260,7 +257,7 @@ function Enable-SelectEncryption {
         Get-BitLockerVolume -MountPoint $Letter | Disable-BitLocker
 
         # wait for end of the process
-        While (!(Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals("FullyDecrypted")) {
+        While (!(Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals('FullyDecrypted')) {
             Clear-Host
             Get-BitLockerVolume
             Start-Sleep -second 10
@@ -281,8 +278,7 @@ function Enable-SelectEncryption {
 
 # Enable LAN / WLAN Auto Switching
 function Enable-AutoSwitching {
-    $Bios = (Get-ComputerInfo).BiosManufacturer
-    if ($Bios -eq "HP") {
+    if ((Get-ComputerInfo).BiosManufacturer.Equals("HP")) {
         Set-HPBIOSSettingValue -Name "LAN / WLAN Auto Switching" -Value "Enable"
     }
 }
