@@ -131,7 +131,7 @@ function Disable-Encryption {
         While (!(Get-BitLockerVolume).VolumeStatus[0].ToString().Equals('FullyDecrypted')) {
             Clear-Host
             Get-BitLockerVolume
-            Start-Sleep -second 10
+            Start-Sleep -second 5
         }
     }
 }
@@ -258,9 +258,8 @@ function Enable-SelectEncryption {
 
         # wait for end of the process
         While (!(Get-BitLockerVolume -MountPoint $Letter).VolumeStatus.ToString().Equals('FullyDecrypted')) {
-            Clear-Host
             Get-BitLockerVolume
-            Start-Sleep -second 10
+            Start-Sleep -second 5
         }
 
         # Get BitLocker recovery pin and store it in the domain
