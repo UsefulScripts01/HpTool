@@ -293,25 +293,6 @@ function Save-ErrorLog {
     }
 }
 
-<# SNIPPETS
-    $HpModule = (Get-Module -ListAvailable -Name "HPCMSL").Name
-    if ($HpModule -notmatch "HPCMSL") {
-        Install-Module -Name PowerShellGet -Force
-        Install-Module -Name HPCMSL -Force -AcceptLicense
-        Import-Module -Name HPCMSL -Force
-    }
-
-    $Spin = "/-\|"
-    while ($true) {
-        Write-Host "`b$($spin.Substring($i++%$spin.Length)[0])" -nonewline
-        Start-Sleep -Seconds 0.5
-    }
-
-    #test
-#>
-
-
-
 
 $ProgressPreference = "SilentlyContinue"
 Clear-Host
