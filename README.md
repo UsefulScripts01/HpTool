@@ -10,7 +10,7 @@ A set of simple HP device management tools.
 Copy the code from the area below and paste it into PowerShell Admin (or Windows Terminal)
 
 ```powershell
-Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/HpTool.ps1'))
+Set-ExecutionPolicy Bypass -Scope Process -Force; Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/UsefulScripts01/HpTool/main/HpTool.ps1'))
 ```
 
 <p align="center"><img src="Res/Img/PasteCode.png" width="50%" height="50%"></img></p>
